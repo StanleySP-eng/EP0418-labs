@@ -36,4 +36,4 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 
 ## Data
 
-Rainfall, PSI and taxi-availability data: data.gov.sg, used under the Singapore Open Data Licence. Classroom sensor and personal-activity data: synthetic, generated for this module.
+Rainfall, PSI and taxi-availability data: data.gov.sg, used under the Singapore Open Data Licence. Classroom sensor, personal-activity and share-price data: synthetic, generated for this module.
