@@ -4,10 +4,10 @@
 
 <p class='note'>Optional side quest, open after Lab 3. <a href='Trading_League_Guide.pdf'>Player's guide (PDF)</a> · <a href='https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Trading_League_STUB.ipynb'>Open the League notebook in Colab</a></p>
 <h2>Live: entries as claimed</h2>
-<p class='note' id='livenote'>Live submissions are not switched on yet (see LIVE_SETUP.md).</p>
+<p class='note' id='livenote'>Loading entries...</p>
 <table id='live'><tr><th>#</th><th>Admin no.</th><th>Five-year Sharpe</th><th>Total</th><th>Trades</th><th>Rehearsal</th><th>Submitted</th></tr></table>
 <script>
-const SHEET = "";
+const SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJeVSZ2mqV_su4RuyHxeSnYVbarA04bI8QvayCSep-awcfM7fq7mbTeGOYrc0E5o05OoGGZsvqsWHq/pub?gid=431306080&single=true&output=csv";
 function parseCSV(t) { const rows = []; let row = [], cell = '', q = false;
   for (let i = 0; i < t.length; i++) { const c = t[i];
     if (q) { if (c === '"' && t[i+1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
