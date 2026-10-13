@@ -13,7 +13,7 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 | Lab | Title | Open |
 |---|---|---|
 | Lab 0 | Your first notebook | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab00_On_Ramp_STUB.ipynb) |
-| Lab 1 | Six tracks, one choice | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab01_Track_Choice_STUB.ipynb) |
+| Lab 1 | Six tracks, two favourites | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab01_Track_Choice_STUB.ipynb) |
 | Lab 2 | Getting the time axis right | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab02_Time_Index_STUB.ipynb) |
 | Lab 3 | Clean the broken sensor feed | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab03_Cleaning_STUB.ipynb) |
 | Lab 4 | Three detectors, one dataset | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab04_Anomalies_STUB.ipynb) |
