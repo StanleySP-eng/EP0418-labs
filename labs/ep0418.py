@@ -86,10 +86,10 @@ def _safe(fn):
         if any(_unfilled(a) for a in args):
             return self._record(
                 f"{name}::unfilled", FAIL, name,
-                "This step has not been written yet.",
-                "The line above still reads `...`. Ask your AI assistant for the "
-                "implementation, paste it in, read it to check it does what you asked, "
-                "then run this cell again.")
+                "Not there yet: nothing has made this value.",
+                "Run Gemini's code first: click Accept and run on its green cell (or paste its "
+                "code into a new cell and run it), then run this cell again. If you did, Gemini "
+                "used a different name: type in the chat 'call the result' and the name this cell uses.")
         try:
             return fn(self, *args, **kwargs)
         except Exception as exc:                      # noqa: BLE001 — deliberate net
