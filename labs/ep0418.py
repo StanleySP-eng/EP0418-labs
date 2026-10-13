@@ -30,7 +30,7 @@ import functools
 import numpy as np
 import pandas as pd
 
-__all__ = ["check", "backtest"]
+__all__ = ["check", "backtest", "show"]
 
 PASS, FAIL, NOTE = "PASS", "FAIL", "NOTE"
 
@@ -685,3 +685,157 @@ class _Result(dict):
 
 
 backtest = _Backtest()
+
+
+# =============================================================================
+# show: plain, labelled plots for the labs. One call per picture, so every lab
+# draws the same way: a thin dark line, grey for comparisons, one accent for
+# anything flagged. Nothing here raises; a bad input prints a sentence instead.
+# =============================================================================
+
+class _Show:
+    INK, GREY, ACCENT, LIGHT = "#222222", "#888888", "#b03030", "#dddddd"
+    W = 10
+
+    def _ax(self, h=3.0, n=1):
+        import matplotlib.pyplot as plt
+        fig, axes = plt.subplots(n, 1, figsize=(self.W, h * n), sharex=(n > 1))
+        for ax in (axes if n > 1 else [axes]):
+            for side in ("top", "right"):
+                ax.spines[side].set_visible(False)
+            ax.grid(False)
+        return fig, axes
+
+    def _series(self, obj, col=None):
+        """A Series with a DatetimeIndex, from a Series or a DataFrame + column."""
+        if isinstance(obj, pd.DataFrame):
+            if col is None:
+                raise ValueError("give the column to plot, e.g. col='co2_ppm'")
+            t = _times(obj)
+            if t is None:
+                raise ValueError("no datetime column or index found")
+            return pd.Series(obj[col].values, index=t, name=col)
+        s = pd.Series(obj)
+        if not isinstance(s.index, pd.DatetimeIndex):
+            s.index = pd.to_datetime(s.index, errors="coerce")
+        return s
+
+    def _done(self, ax, title, ylabel):
+        import matplotlib.pyplot as plt
+        if title:
+            ax.set_title(title, loc="left", fontsize=10)
+        if ylabel:
+            ax.set_ylabel(ylabel)
+        plt.tight_layout(); plt.show()
+
+    def series(self, obj, col=None, title=None, ylabel=None, span=None, hline=None):
+        """One series over time. span=(start, end) shades a period; hline draws a level."""
+        try:
+            s = self._series(obj, col)
+            fig, ax = self._ax()
+            ax.plot(s.index, s.values, color=self.INK, lw=0.8)
+            if span is not None:
+                ax.axvspan(pd.Timestamp(span[0]), pd.Timestamp(span[1]), color=self.LIGHT, zorder=0)
+            if hline is not None:
+                ax.axhline(hline, color=self.GREY, lw=0.8, ls="--")
+            self._done(ax, title, ylabel or getattr(s, "name", None))
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.series could not draw this: {e}")
+
+    def flags(self, obj, mask, col=None, title=None, ylabel=None):
+        """A series with the rows where mask is True marked in the accent colour."""
+        try:
+            s = self._series(obj, col)
+            m = pd.Series(mask).fillna(False).astype(bool).values
+            fig, ax = self._ax()
+            ax.plot(s.index, s.values, color=self.INK, lw=0.8)
+            ax.scatter(s.index[m], s.values[m], color=self.ACCENT, s=12, zorder=3,
+                       label=f"flagged: {int(m.sum()):,}")
+            ax.legend(loc="upper right", frameon=False, fontsize=9)
+            self._done(ax, title, ylabel or getattr(s, "name", None))
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.flags could not draw this: {e}")
+
+    def before_after(self, before, after, col, title=None):
+        """Two panels on the same time axis: the column before and after a step."""
+        try:
+            a, b = self._series(before, col), self._series(after, col)
+            fig, axes = self._ax(2.4, 2)
+            axes[0].plot(a.index, a.values, color=self.INK, lw=0.8)
+            axes[0].set_title(f"before: {len(a):,} rows", loc="left", fontsize=10)
+            axes[1].plot(b.index, b.values, color=self.INK, lw=0.8)
+            axes[1].set_title(f"after: {len(b):,} rows", loc="left", fontsize=10)
+            for ax in axes:
+                ax.set_ylabel(col)
+            if title:
+                fig.suptitle(title, x=0.01, ha="left", fontsize=10)
+            import matplotlib.pyplot as plt
+            plt.tight_layout(); plt.show()
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.before_after could not draw this: {e}")
+
+    def compare(self, actual, title=None, ylabel=None, **others):
+        """Actual in dark; each named keyword series in grey, dashed. show.compare(s, baseline=b, model=m)"""
+        try:
+            s = self._series(actual)
+            fig, ax = self._ax()
+            ax.plot(s.index, s.values, color=self.INK, lw=0.9, label="actual")
+            styles = ["--", ":", "-."]
+            for i, (name, o) in enumerate(others.items()):
+                o = self._series(o)
+                ax.plot(o.index, o.values, color=self.GREY if i else self.ACCENT, lw=0.9,
+                        ls=styles[i % 3], label=name)
+            ax.legend(loc="upper right", frameon=False, fontsize=9, ncol=len(others) + 1)
+            self._done(ax, title, ylabel or getattr(s, "name", None))
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.compare could not draw this: {e}")
+
+    def profile(self, obj, col=None, by="hour", title=None):
+        """Mean by hour of day (by='hour') or day of week (by='dow')."""
+        try:
+            s = self._series(obj, col)
+            if by == "hour":
+                g = s.groupby(s.index.hour).mean(); xlabel = "hour of day"
+            else:
+                g = s.groupby(s.index.dayofweek).mean(); xlabel = "day of week (0 = Monday)"
+            fig, ax = self._ax(2.6)
+            ax.plot(g.index, g.values, color=self.INK, lw=0.9, marker="o", ms=3)
+            ax.set_xlabel(xlabel); ax.set_xticks(list(g.index))
+            self._done(ax, title, f"mean {getattr(s, 'name', '')}".strip())
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.profile could not draw this: {e}")
+
+    def alerts(self, obj, threshold, col=None, title=None, **fired):
+        """A series, its threshold, and one row of markers per named alert mask.
+        show.alerts(df, 1000, col='co2_ppm', naive=mask1, debounced=mask2)"""
+        try:
+            s = self._series(obj, col)
+            fig, ax = self._ax(3.2)
+            ax.plot(s.index, s.values, color=self.INK, lw=0.7)
+            ax.axhline(threshold, color=self.GREY, lw=0.8, ls="--", label=f"threshold {threshold}")
+            top = float(np.nanmax(s.values)); step = (top - float(np.nanmin(s.values))) * 0.06
+            for i, (name, m) in enumerate(fired.items()):
+                m = pd.Series(m).fillna(False).astype(bool).values
+                y = top + step * (i + 1)
+                ax.scatter(s.index[m], [y] * int(m.sum()), s=8, marker="|",
+                           color=self.ACCENT if i == 0 else self.GREY, label=f"{name}: {int(m.sum()):,} alerts")
+            ax.legend(loc="upper left", frameon=False, fontsize=9, ncol=len(fired) + 1)
+            self._done(ax, title, getattr(s, "name", None))
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.alerts could not draw this: {e}")
+
+    def stages(self, counts, title="Rows at each stage"):
+        """Row counts through a pipeline: show.stages({'ingest': 17354, 'clean': 17214, ...})."""
+        try:
+            names, vals = list(counts.keys()), [int(v) for v in counts.values()]
+            fig, ax = self._ax(0.5 * len(names) + 0.8)
+            ax.barh(names[::-1], vals[::-1], color=self.LIGHT, edgecolor=self.INK, lw=0.6)
+            for i, v in enumerate(vals[::-1]):
+                ax.text(v, i, f" {v:,}", va="center", fontsize=9)
+            ax.set_xlim(0, max(vals) * 1.18)
+            self._done(ax, title, None)
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.stages could not draw this: {e}")
+
+
+show = _Show()

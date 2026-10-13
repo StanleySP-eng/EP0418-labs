@@ -1,6 +1,6 @@
 """
 EP0418 track kit: a ready-made `ingest()` and `clean()` for each project track,
-for Laboratory 8 and CA3. Copy the pair for your track into your notebook and
+for Lab 8 and CA3. Copy the pair for your track into your notebook and
 adapt it; read every line first.
 
 Every ingest returns a DataFrame with a `timestamp` column (renamed from `Date`
@@ -43,7 +43,7 @@ def ingest_smart_building(csv="smart_building_sensors.csv"):
 
 
 def clean_smart_building(df):
-    """The Laboratory 4 cleaning: -999 humidity is a dropout, duplicate logger
+    """The Lab 4 cleaning: -999 humidity is a dropout, duplicate logger
     rows are kept last, and the 5-minute grid makes the 11 June outage visible."""
     df = df.copy()
     df.loc[df.humidity_pct == -999, "humidity_pct"] = np.nan
