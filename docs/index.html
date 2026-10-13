@@ -5,7 +5,7 @@
 <p class='note'>Optional side quest, open after Lab 3. <a href='Trading_League_Guide.pdf'>Player's guide (PDF)</a> · <a href='https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Trading_League_STUB.ipynb'>Open the League notebook in Colab</a></p>
 <h2>Live: entries as claimed</h2>
 <p class='note' id='livenote'>Loading entries...</p>
-<table id='live'><tr><th>#</th><th>Admin no.</th><th>Five-year Sharpe</th><th>Total</th><th>Trades</th><th>Rehearsal</th><th>Submitted</th></tr></table>
+<table id='live'><tr><th>#</th><th>Name</th><th>Five-year Sharpe</th><th>Total</th><th>Trades</th><th>Rehearsal</th><th>Submitted</th></tr></table>
 <script>
 const SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJeVSZ2mqV_su4RuyHxeSnYVbarA04bI8QvayCSep-awcfM7fq7mbTeGOYrc0E5o05OoGGZsvqsWHq/pub?gid=431306080&single=true&output=csv";
 function parseCSV(t) { const rows = []; let row = [], cell = '', q = false;
@@ -23,10 +23,10 @@ async function refresh() {
     const list = Object.values(latest).map(r => ({admin: r[1].trim(), sharpe: +r[4], total: +r[5], trades: r[6], reh: r[7], when: r[0]}))
       .filter(e => isFinite(e.sharpe)).sort((a, b) => b.sharpe - a.sharpe);
     const tbl = document.getElementById('live');
-    tbl.innerHTML = '<tr><th>#</th><th>Admin no.</th><th>Five-year Sharpe</th><th>Total</th><th>Trades</th><th>Rehearsal</th><th>Submitted</th></tr>' +
+    tbl.innerHTML = '<tr><th>#</th><th>Name</th><th>Five-year Sharpe</th><th>Total</th><th>Trades</th><th>Rehearsal</th><th>Submitted</th></tr>' +
       list.map((e, i) => '<tr><td>' + (i + 1) + '</td><td>' + e.admin + '</td><td>' + e.sharpe.toFixed(2) + '</td><td>' +
         (e.total * 100).toFixed(1) + '%</td><td>' + e.trades + '</td><td>' + e.reh + '</td><td>' + e.when + '</td></tr>').join('');
-    document.getElementById('livenote').textContent = list.length + ' entries, latest per admin number, ranked by the five-year Sharpe ratio each notebook computed. As claimed: the verified board below is the one that counts.';
+    document.getElementById('livenote').textContent = list.length + ' entries, latest per name, ranked by the five-year Sharpe ratio each notebook computed. As claimed: the verified board below is the one that counts.';
   } catch (e) { document.getElementById('livenote').textContent = 'Could not load the entries: ' + e; }
 }
 refresh(); setInterval(refresh, 60000);
