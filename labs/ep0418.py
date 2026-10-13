@@ -742,7 +742,7 @@ class _Show:
         except Exception as e:                                        # noqa: BLE001
             print(f"show.series could not draw this: {e}")
 
-    def flags(self, obj, mask, col=None, title=None, ylabel=None):
+    def flags(self, obj, mask, col=None, title=None, ylabel=None, label="flagged"):
         """A series with the rows where mask is True marked in the accent colour."""
         try:
             s = self._series(obj, col)
@@ -750,7 +750,7 @@ class _Show:
             fig, ax = self._ax()
             ax.plot(s.index, s.values, color=self.INK, lw=0.8)
             ax.scatter(s.index[m], s.values[m], color=self.ACCENT, s=12, zorder=3,
-                       label=f"flagged: {int(m.sum()):,}")
+                       label=f"{label}: {int(m.sum()):,}")
             ax.legend(loc="upper right", frameon=False, fontsize=9)
             self._done(ax, title, ylabel or getattr(s, "name", None))
         except Exception as e:                                        # noqa: BLE001
