@@ -12,15 +12,15 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 
 | Lab | Title | Open |
 |---|---|---|
-| Lab 0 | Your first notebook | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab00_On_Ramp_STUB.ipynb) |
-| Lab 1 | Six tracks, two favourites | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab01_Track_Choice_STUB.ipynb) |
-| Lab 2 | Getting the time axis right | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab02_Time_Index_STUB.ipynb) |
-| Lab 3 | Clean the broken sensor feed | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab03_Cleaning_STUB.ipynb) |
-| Lab 4 | Three detectors, one dataset | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab04_Anomalies_STUB.ipynb) |
-| Lab 5 | Beat the baseline, or explain why you did not | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab05_Forecasting_STUB.ipynb) |
-| Lab 6 | Make something actually happen | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab06_Decision_and_Response_STUB.ipynb) |
-| Lab 7 | Connect the five stages | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab07_End_to_End_STUB.ipynb) |
-| Lab 8 | Let an AI attack your project | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab08_Agent_Critic_STUB.ipynb) |
+| Lab 1 | Your first notebook | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab01_On_Ramp_STUB.ipynb) |
+| Lab 2 | Six tracks, two favourites | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab02_Track_Choice_STUB.ipynb) |
+| Lab 3 | Getting the time axis right | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab03_Time_Index_STUB.ipynb) |
+| Lab 4 | Clean the broken sensor feed | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab04_Cleaning_STUB.ipynb) |
+| Lab 5 | Three detectors, one dataset | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab05_Anomalies_STUB.ipynb) |
+| Lab 6 | Beat the baseline, or explain why you did not | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab06_Forecasting_STUB.ipynb) |
+| Lab 7 | Make something actually happen | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab07_Decision_and_Response_STUB.ipynb) |
+| Lab 8 | Connect the five stages | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab08_End_to_End_STUB.ipynb) |
+| Lab 9 | Let an AI attack your project | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab09_Agent_Critic_STUB.ipynb) |
 | League | Backtest league (optional, Weeks 7 to 15) | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/League_Backtest_STUB.ipynb) |
 
 ## Starter packs (one per project track)
