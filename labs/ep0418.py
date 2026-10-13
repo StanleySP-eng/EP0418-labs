@@ -30,7 +30,7 @@ import functools
 import numpy as np
 import pandas as pd
 
-__all__ = ["check", "backtest", "show"]
+__all__ = ["check", "backtest", "show", "league"]
 
 PASS, FAIL, NOTE = "PASS", "FAIL", "NOTE"
 
@@ -839,3 +839,177 @@ class _Show:
 
 
 show = _Show()
+
+
+# =============================================================================
+# league: locked scorers for the Beat-the-Baseline League, one per track.
+# Students read these; they never edit them. Every scorer takes a strategy
+# function and the data, scores it on the rows after `start` (the hidden period
+# when the tutor runs it), and checks that the strategy used no future rows.
+# =============================================================================
+
+class _League:
+    """
+    Track 2  strategy(df) -> boolean Series, True on rows to alert.  Lower cost wins:
+             cost = alert rows + uncovered rows (occupied, CO2 > 1000, no alert in the
+             last 30 minutes). Baseline: the fixed threshold.
+    Track 3  strategy(history) -> True to water today. Called once per day with the
+             rows before that day. cost = 2 x missed waterings + wasted waterings.
+             Baseline: the best of three dumb rules (yesterday, always water, never water).
+    Track 4  strategy(history) -> the next 24 hourly values. Called once per day with
+             the hourly series up to midnight. MAE. Baseline: the same 24 hours last week.
+    Track 5  strategy(history) -> tomorrow's steps. Called once per day. MAE.
+             Baseline: mean of the last 7 recorded days.
+    Track 1  use ep0418.backtest (the backtest league).
+    """
+    COVER = 6                      # rows (30 minutes) an alert covers, Track 2
+    HORIZON = 24                   # hours, Track 4
+
+    # ------------------------------------------------------------ helpers
+    def _result(self, track, metric, value, baseline, n, lower_is_better=True, detail=""):
+        return _Result(track=track, metric=metric, value=float(value), baseline=float(baseline),
+                       n=int(n), lower_is_better=lower_is_better,
+                       beats_baseline=(value < baseline) if lower_is_better else (value > baseline),
+                       detail=detail)
+
+    @staticmethod
+    def _split(df, start, col):
+        t = pd.to_datetime(df[col])
+        if start is None:
+            start = t.iloc[int(len(t) * 0.8)]
+        start = pd.Timestamp(start)
+        if t.dt.tz is not None and start.tzinfo is None:
+            start = start.tz_localize(t.dt.tz)
+        return start
+
+    # ------------------------------------------------------------ Track 2
+    def building_cost(self, df, alert):
+        a = pd.Series(alert).fillna(False).astype(bool).reset_index(drop=True)
+        d = df.reset_index(drop=True)
+        need = (d.occupancy > 0) & (d.co2_ppm > 1000)
+        covered = a.rolling(self.COVER, min_periods=1).max().astype(bool)
+        uncovered = need & ~covered
+        return int(a.sum()), int(uncovered.sum())
+
+    def score_building(self, strategy, df, start=None):
+        d = df.sort_values("timestamp").reset_index(drop=True)
+        start = self._split(d, start, "timestamp")
+        full = pd.Series(strategy(d.copy())).fillna(False).astype(bool).reset_index(drop=True)
+        if len(full) != len(d):
+            raise ValueError(f"strategy returned {len(full)} values for {len(d)} rows")
+        k = int((d.timestamp < start).sum())
+        trues = np.flatnonzero(full.values[: max(len(d) - 1, 1)]) + 1   # cut just after an alert
+        cuts = list(trues[np.linspace(0, len(trues) - 1, 8).astype(int)]) if len(trues) else []
+        cuts += [int(len(d) * f) for f in (0.3, 0.6, 0.9)]
+        for c in sorted(set(int(x) for x in cuts)):       # truncation test at several cuts
+            part = pd.Series(strategy(d.iloc[:c].copy())).fillna(False).astype(bool).reset_index(drop=True)
+            if len(part) == c and int((part != full.iloc[:c]).sum()):
+                raise ValueError("decisions before a cut changed when later rows were removed: "
+                                 "the strategy is reading the future")
+        test = d.iloc[k:].reset_index(drop=True)
+        alerts, missed = self.building_cost(test, full.iloc[k:])
+        b_alerts, b_missed = self.building_cost(test, (test.co2_ppm > 1000))
+        return self._result(2, "cost (alerts + uncovered)", alerts + missed, b_alerts + b_missed, len(test),
+                            detail=f"{alerts} alerts, {missed} uncovered; fixed threshold {b_alerts} + {b_missed}")
+
+    # ------------------------------------------------------------ Track 3
+    def score_farm(self, strategy, df, start=None):
+        d = df.sort_values("date").reset_index(drop=True)
+        d["date"] = pd.to_datetime(d["date"])
+        start = self._split(d, start, "date")
+        need = d.rain_mm_mean < 1.0
+        idx = d.index[d.date >= start]
+        missed = wasted = 0
+        rules = {"yesterday": [0, 0], "always water": [0, 0], "never water": [0, 0]}
+        for i in idx:
+            hist = d.iloc[:i].copy()
+            water = bool(strategy(hist))
+            dumb = {"yesterday": bool(need.iloc[i - 1]) if i > 0 else False,
+                    "always water": True, "never water": False}
+            if need.iloc[i]:
+                missed += (not water)
+                for r, w in dumb.items(): rules[r][0] += (not w)
+            else:
+                wasted += water
+                for r, w in dumb.items(): rules[r][1] += w
+        cost = lambda mw: 2 * mw[0] + mw[1]
+        best = min(rules, key=lambda r: cost(rules[r]))
+        return self._result(3, "cost (2 x missed + wasted)", 2 * missed + wasted, cost(rules[best]), len(idx),
+                            detail=f"{missed} missed, {wasted} wasted; best dumb rule '{best}' "
+                                   f"{rules[best][0]} missed + {rules[best][1]} wasted")
+
+    # ------------------------------------------------------------ Track 4
+    def score_city(self, strategy, s, start=None):
+        s = pd.Series(s).sort_index()
+        if not isinstance(s.index, pd.DatetimeIndex):
+            raise ValueError("give an hourly Series with a DatetimeIndex (resample first)")
+        if start is None:
+            start = s.index[int(len(s) * 0.8)].normalize()
+        start = pd.Timestamp(start)
+        if s.index.tz is not None and start.tzinfo is None:
+            start = start.tz_localize(s.index.tz)
+        days = pd.date_range(start.normalize(), s.index[-1].normalize(), freq="D")
+        err, b_err, n = [], [], 0
+        for day in days:
+            hist = s[s.index < day]
+            if len(hist) < 24 * 8:
+                continue
+            pred = np.asarray(strategy(hist.copy()), dtype=float).ravel()[: self.HORIZON]
+            actual = s[(s.index >= day) & (s.index < day + pd.Timedelta(hours=self.HORIZON))]
+            base = hist[(hist.index >= day - pd.Timedelta(days=7)) &
+                        (hist.index < day - pd.Timedelta(days=7) + pd.Timedelta(hours=self.HORIZON))]
+            m = min(len(pred), len(actual), len(base))
+            for p, a, b in zip(pred[:m], actual.values[:m], base.values[:m]):
+                if np.isfinite(a) and np.isfinite(p) and np.isfinite(b):
+                    err.append(abs(a - p)); b_err.append(abs(a - b)); n += 1
+        if not n:
+            raise ValueError("no scorable hours after the start date")
+        return self._result(4, f"MAE, {self.HORIZON} h ahead", float(np.mean(err)), float(np.mean(b_err)), n,
+                            detail=f"{len(days)} forecast days")
+
+    # ------------------------------------------------------------ Track 5
+    def score_self(self, strategy, df, start=None):
+        d = df.sort_values("date").reset_index(drop=True)
+        d["date"] = pd.to_datetime(d["date"])
+        start = self._split(d, start, "date")
+        idx = d.index[d.date >= start]
+        err, b_err = [], []
+        for i in idx:
+            hist = d.iloc[:i].copy()
+            actual = d.steps.iloc[i]
+            if not np.isfinite(actual):
+                continue
+            pred = float(strategy(hist))
+            recent = hist.steps.replace(0, np.nan).dropna().tail(7)
+            base = float(recent.mean()) if len(recent) else np.nan
+            if np.isfinite(pred) and np.isfinite(base):
+                err.append(abs(actual - pred)); b_err.append(abs(actual - base))
+        return self._result(5, "MAE, steps, 1 day ahead", float(np.mean(err)), float(np.mean(b_err)), len(err))
+
+    # ------------------------------------------------------------ dispatch
+    def score(self, track, strategy, data, start=None):
+        """league.score(track, strategy, data, start): score a strategy on the rows after start."""
+        fn = {2: self.score_building, 3: self.score_farm, 4: self.score_city, 5: self.score_self}.get(int(track))
+        if fn is None:
+            raise ValueError("track must be 2, 3, 4 or 5 (Track 1 uses ep0418.backtest)")
+        return fn(strategy, data, start)
+
+
+class _Result(dict):
+    """A dict of league results that prints as a short report."""
+    def __getattr__(self, k):
+        try:
+            return self[k]
+        except KeyError:
+            raise AttributeError(k)
+    def __str__(self):
+        verdict = "beats the baseline" if self["beats_baseline"] else "does not beat the baseline"
+        return (f"  track {self['track']}   {self['metric']}\n"
+                f"  yours      {self['value']:,.2f}\n"
+                f"  baseline   {self['baseline']:,.2f}\n"
+                f"  scored on  {self['n']:,} rows   -> {verdict}"
+                + (f"\n  {self['detail']}" if self.get("detail") else ""))
+    __repr__ = __str__
+
+
+league = _League()
