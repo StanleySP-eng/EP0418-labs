@@ -27,7 +27,6 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 
 | Notebook | Open |
 |---|---|
-| All six tracks (Lab 1) | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/Lab1_All_Tracks.ipynb) |
 | Track1 Smart Money Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track1_smart_money/Track1_Smart_Money_Starter.ipynb) |
 | Track2 Smart Building Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track2_smart_building/Track2_Smart_Building_Starter.ipynb) |
 | Track3 Smart Farm Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track3_smart_farm/Track3_Smart_Farm_Starter.ipynb) |
