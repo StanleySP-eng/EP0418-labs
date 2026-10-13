@@ -603,7 +603,7 @@ class _Check:
         elif n_note:
             print("\nNothing is broken. The NOTE items are real results — write them up.")
         else:
-            print("\nAll checks passed. Record what you changed in verification_log.md.")
+            print("\nAll checks passed. Write the mistake you caught in the cell at the end.")
         print("=" * width)
         return n_fail == 0
 
