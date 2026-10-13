@@ -32,4 +32,27 @@ async function refresh() {
 refresh(); setInterval(refresh, 60000);
 </script>
 
+
+<h2>Prediction League</h2>
+<p class='note' id='prednote'>Loading predictions...</p>
+<table id='pred'><tr><th>Lab</th><th>Team</th><th>Prediction</th><th>Method</th><th>Submitted</th></tr></table>
+<div id='predresults'></div>
+<script>
+const PSHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsqMuE2mROxNGyQb5e926p3pyWkoSjIBdGKCetxgdi1FAfDC_fzba2Gho29d1xtDs_3SPQncl2LVCu/pub?gid=1175728858&single=true&output=csv";
+async function refreshPred() {
+  if (!PSHEET) return;
+  try {
+    const t = await fetch(PSHEET + (PSHEET.includes('?') ? '&' : '?') + 'cb=' + Date.now(), {cache: 'no-store'}).then(r => r.text());
+    const rows = parseCSV(t).slice(1).filter(r => r.length >= 5 && r[1].trim());
+    const latest = {}; for (const r of rows) latest[r[2].trim() + '|' + r[1].trim()] = r;   // latest per lab+team
+    const list = Object.values(latest).map(r => ({lab: r[2].trim(), team: r[1].trim(), pred: r[3].trim(), method: r[4].trim(), when: r[0]}))
+      .sort((a, b) => (a.lab - b.lab) || a.team.localeCompare(b.team));
+    document.getElementById('pred').innerHTML = '<tr><th>Lab</th><th>Team</th><th>Prediction</th><th>Method</th><th>Submitted</th></tr>' +
+      list.map(e => '<tr><td>' + e.lab + '</td><td>' + e.team + '</td><td>' + e.pred + '</td><td>' + e.method + '</td><td>' + e.when + '</td></tr>').join('');
+    document.getElementById('prednote').textContent = list.length + ' predictions, latest per team and lab. Reality settles each week; results appear below.';
+  } catch (e) { document.getElementById('prednote').textContent = 'Could not load the predictions: ' + e; }
+}
+refreshPred(); setInterval(refreshPred, 60000);
+</script>
+
 <p class='note'>The verified boards appear here once the tutor has scored the entries.</p></body></html>
