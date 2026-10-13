@@ -13,7 +13,7 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 | Lab | Title | Open |
 |---|---|---|
 | Lab 1 | Your first notebook | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab01_On_Ramp_STUB.ipynb) |
-| Lab 2 | The Trading League | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab02_Trading_League_STUB.ipynb) |
+| Lab 2 | Getting data in | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab02_Getting_Data_In_STUB.ipynb) |
 | Lab 3 | Getting the time axis right | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab03_Time_Index_STUB.ipynb) |
 | Lab 4 | Clean the broken sensor feed | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab04_Cleaning_STUB.ipynb) |
 | Lab 5 | Three detectors, one dataset | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab05_Anomalies_STUB.ipynb) |
@@ -21,6 +21,7 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 | Lab 7 | Make something actually happen | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab07_Decision_and_Response_STUB.ipynb) |
 | Lab 8 | Connect the five stages | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab08_End_to_End_STUB.ipynb) |
 | Lab 9 | Let an AI attack your project | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab09_Agent_Critic_STUB.ipynb) |
+| Trading League | Optional side quest, opens after Lab 3 | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Trading_League_STUB.ipynb) |
 
 ## Starter packs (one per project track)
 
