@@ -21,6 +21,7 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 | Lab 6 | Make something actually happen | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab06_Decision_and_Response_STUB.ipynb) |
 | Lab 7 | Connect the five stages | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab07_End_to_End_STUB.ipynb) |
 | Lab 8 | Let an AI attack your project | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/Lab08_Agent_Critic_STUB.ipynb) |
+| League | Backtest league (optional, Weeks 7 to 15) | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/labs/League_Backtest_STUB.ipynb) |
 
 ## Starter packs (one per project track)
 
@@ -32,8 +33,11 @@ Singapore Polytechnic, School of Electrical and Electronic Engineering.
 | Track3 Smart Farm Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track3_smart_farm/Track3_Smart_Farm_Starter.ipynb) |
 | Track4 Smart City Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track4_smart_city/Track4_Smart_City_Starter.ipynb) |
 | Track5 Smart Self Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track5_smart_self/Track5_Smart_Self_Starter.ipynb) |
+| Example F1 Lap Times | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track6_free_form/Example_F1_Lap_Times.ipynb) |
+| Example Football Results | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track6_free_form/Example_Football_Results.ipynb) |
+| Example Steam Players | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track6_free_form/Example_Steam_Players.ipynb) |
 | Track6 Free Form Starter | [Open in Colab](https://colab.research.google.com/github/StanleySP-eng/EP0418-labs/blob/main/starter_packs/track6_free_form/Track6_Free_Form_Starter.ipynb) |
 
 ## Data
 
-Rainfall, PSI and taxi-availability data: data.gov.sg, used under the Singapore Open Data Licence. Classroom sensor, personal-activity and share-price data: synthetic, generated for this module.
+Rainfall, PSI, taxi-availability and COE bidding data: data.gov.sg, used under the Singapore Open Data Licence. Classroom sensor, personal-activity and share-price data: synthetic, generated for this module.

@@ -30,7 +30,7 @@ import functools
 import numpy as np
 import pandas as pd
 
-__all__ = ["check"]
+__all__ = ["check", "backtest"]
 
 PASS, FAIL, NOTE = "PASS", "FAIL", "NOTE"
 
@@ -484,6 +484,87 @@ class _Check:
         return self._record(key, PASS, "response_fired", f"{n} response(s) fired.")
 
     # ---------------------------------------------------------------- report
+
+    # ---------------------------------------------------------------- backtest league
+    @_safe
+    def position_is_valid(self, position, prices):
+        """Your strategy's position is -1, 0 or 1 on every trading day of the price file."""
+        key = "position_is_valid"
+        pos = pd.Series(position)
+        if len(pos) != len(prices):
+            return self._record(
+                key, FAIL, "position_is_valid",
+                f"The position has {len(pos):,} rows; the price file has {len(prices):,}.",
+                "Return one position per row of the price table, in the same order. "
+                "If you dropped the warm-up rows of a rolling window, fill them with 0 "
+                "instead:  position = position.fillna(0)")
+        bad = pos[~pos.isin([-1, 0, 1])]
+        if len(bad):
+            sample = ", ".join(str(v) for v in bad.unique()[:5])
+            return self._record(
+                key, FAIL, "position_is_valid",
+                f"{len(bad):,} row(s) are not -1, 0 or 1 (for example {sample}).",
+                "A position is a decision, not a forecast: 1 means hold the ETF, 0 means "
+                "hold cash, -1 means short. NaN usually means a rolling window has not "
+                "filled yet; fill those with 0.")
+        return self._record(key, PASS, "position_is_valid",
+                            f"{len(pos):,} positions, all -1, 0 or 1.")
+
+    @_safe
+    def no_lookahead(self, strategy, prices, cuts=None):
+        """
+        Your strategy does not use future prices. (SLO 6.2, 9.1)
+
+        The test is a truncation test: run the strategy on the first k rows only and
+        compare with the first k rows of its answer on the full file. If today's
+        decision changes when tomorrow's price is removed, it was using tomorrow's
+        price. This catches shift(-1), centred rolling windows and the like, which
+        the scorer's one-day delay alone cannot. Twelve cut points are used, so a
+        rule that leaks one day (shift(-1)) is caught at almost every cut.
+        """
+        key = "no_lookahead"
+        if cuts is None:                      # 12 cuts: a one-row leak at a cut is
+            cuts = np.linspace(0.3, 0.97, 12)  # missed with probability about 1 in 4000
+        full = pd.Series(strategy(prices.copy())).reset_index(drop=True)
+        for frac in cuts:
+            k = int(len(prices) * frac)
+            part = pd.Series(strategy(prices.iloc[:k].copy())).reset_index(drop=True)
+            if len(part) != k:
+                return self._record(
+                    key, FAIL, "no_lookahead",
+                    f"On the first {k:,} rows the strategy returned {len(part):,} positions.",
+                    "The strategy must return one position per row it is given.")
+            diff = int((part.fillna(0) != full.iloc[:k].fillna(0)).sum())
+            if diff:
+                first = int(np.argmax((part.fillna(0) != full.iloc[:k].fillna(0)).values))
+                return self._record(
+                    key, FAIL, "no_lookahead",
+                    f"Removing the rows after day {k:,} changed {diff:,} earlier decision(s), "
+                    f"the first on day {first:,}.",
+                    "The strategy is reading prices from after the day it is deciding for. "
+                    "Look for shift() with a negative number, rolling(..., center=True), "
+                    "or a statistic computed over the whole file (such as the overall "
+                    "mean) and used on every day. A decision for day t may use rows up "
+                    "to and including t only.")
+        return self._record(key, PASS, "no_lookahead",
+                            f"Decisions unchanged when the future is removed at "
+                            f"{len(cuts)} cut points.")
+
+    @_safe
+    def trades_at_least(self, position, minimum=4):
+        """The strategy actually trades; buy-and-hold under a new name is not an entry."""
+        key = "trades_at_least"
+        pos = pd.Series(position).fillna(0)
+        n = int((pos.diff().fillna(0) != 0).sum())
+        if n < minimum:
+            return self._record(
+                key, FAIL, "trades_at_least",
+                f"The position changes {n} time(s); the league asks for at least {minimum}.",
+                "A strategy that never changes its mind is buy-and-hold, which is already "
+                "on the leaderboard as the baseline. Your entry has to decide something.")
+        return self._record(key, PASS, "trades_at_least",
+                            f"The position changes {n:,} times.")
+
     def report(self, verbose=True):
         """Print the summary. Returns True if nothing failed."""
         rows = list(self._results.values())
@@ -528,3 +609,79 @@ class _Check:
 
 
 check = _Check()
+
+
+# =============================================================================
+# Backtest league scorer. Locked, like the checks: students read it, never edit it.
+# =============================================================================
+
+class _Backtest:
+    """
+    Turn a daily position into a scored equity curve.
+
+        from ep0418 import backtest
+        result = backtest.run(prices, position)      # prices has a Close column
+        print(result)
+
+    Rules of the scorer, in words (the code below is the only authority):
+
+    * You decide at the close. The position you hold at the close of day t earns
+      the move from the close of day t to the close of day t+1. The scorer shifts
+      your position by one day for you, so a decision cannot earn the move that
+      produced it.
+    * Every change of position costs COST of the money moved. Switching from
+      long to short moves two units and costs twice.
+    * Scores are computed over the rows you pass in, so the same function scores
+      the public file and the hidden period.
+    """
+    COST = 0.001          # 0.1% of the amount traded, each time the position changes
+    DAYS = 252            # trading days in a year, for annualising
+
+    def run(self, prices, position, cost=None):
+        cost = self.COST if cost is None else cost
+        close = pd.Series(prices["Close"]).astype(float).reset_index(drop=True)
+        pos = pd.Series(position).astype(float).fillna(0).reset_index(drop=True)
+        if len(pos) != len(close):
+            raise ValueError(f"position has {len(pos)} rows, prices has {len(close)}")
+        ret = close.pct_change().fillna(0)
+        held = pos.shift(1).fillna(0)                       # yesterday's decision earns today
+        traded = held.diff().abs().fillna(held.abs().iloc[0] if len(held) else 0)
+        daily = held * ret - traded * cost
+        equity = (1 + daily).cumprod()
+        return self._metrics(daily, equity, int((traded > 0).sum()))
+
+    def buy_and_hold(self, prices, cost=None):
+        return self.run(prices, np.ones(len(prices)), cost)
+
+    def _metrics(self, daily, equity, trades):
+        n = len(daily)
+        years = n / self.DAYS if n else float("nan")
+        total = float(equity.iloc[-1] - 1) if n else float("nan")
+        ann = float((1 + total) ** (1 / years) - 1) if n and total > -1 else float("nan")
+        vol = float(daily.std() * np.sqrt(self.DAYS)) if n > 1 else float("nan")
+        sharpe = float(daily.mean() / daily.std() * np.sqrt(self.DAYS)) if n > 1 and daily.std() > 0 else 0.0
+        mdd = float((equity / equity.cummax() - 1).min()) if n else float("nan")
+        return _Result(total=total, annualised=ann, volatility=vol, sharpe=sharpe,
+                       max_drawdown=mdd, trades=trades, days=n, equity=equity)
+
+
+class _Result(dict):
+    """A dict of metrics that prints as a small table."""
+    def __init__(self, **kw):
+        super().__init__(**kw)
+    def __getattr__(self, k):
+        try:
+            return self[k]
+        except KeyError:
+            raise AttributeError(k)
+    def __str__(self):
+        return (f"  total return   {self['total']:+.1%}\n"
+                f"  annualised     {self['annualised']:+.1%}\n"
+                f"  volatility     {self['volatility']:.1%}\n"
+                f"  Sharpe ratio   {self['sharpe']:.2f}\n"
+                f"  max drawdown   {self['max_drawdown']:.1%}\n"
+                f"  trades         {self['trades']}   over {self['days']} trading days")
+    __repr__ = __str__
+
+
+backtest = _Backtest()
