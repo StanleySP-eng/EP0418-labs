@@ -867,7 +867,7 @@ class _League:
 
     # ------------------------------------------------------------ helpers
     def _result(self, track, metric, value, baseline, n, lower_is_better=True, detail=""):
-        return _Result(track=track, metric=metric, value=float(value), baseline=float(baseline),
+        return _LeagueResult(track=track, metric=metric, value=float(value), baseline=float(baseline),
                        n=int(n), lower_is_better=lower_is_better,
                        beats_baseline=(value < baseline) if lower_is_better else (value > baseline),
                        detail=detail)
@@ -995,7 +995,7 @@ class _League:
         return fn(strategy, data, start)
 
 
-class _Result(dict):
+class _LeagueResult(dict):
     """A dict of league results that prints as a short report."""
     def __getattr__(self, k):
         try:
