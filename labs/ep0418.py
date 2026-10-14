@@ -838,6 +838,36 @@ class _Show:
         except Exception as e:                                        # noqa: BLE001
             print(f"show.stages could not draw this: {e}")
 
+    def pipeline_code(self, names=("ingest", "clean", "analyse", "decide", "respond", "pipeline")):
+        """Put the code of the live pipeline stages in one box, to copy into an AI that
+        cannot see the notebook (ChatGPT, Claude, Copilot). Only the versions in use now
+        are shown, under the names pipeline() calls them by."""
+        import inspect, html, __main__
+        g, parts = vars(__main__), []
+        for name in names:
+            f = g.get(name)
+            if f is None:
+                parts.append(f"# ---- {name}: not defined in this notebook yet")
+                continue
+            note = f" (this is {f.__name__})" if getattr(f, "__name__", name) != name else ""
+            if getattr(f, "fake", False):
+                note += " - still the fake skeleton from Task 1"
+            try:
+                src = inspect.getsource(f).rstrip()
+            except (TypeError, OSError):
+                src = "# (its code could not be read; paste its cell by hand)"
+            parts.append(f"# ---- {name}{note}\n{src}")
+        text = "\n\n".join(parts)
+        try:
+            from IPython.display import HTML, display
+            rows = min(30, text.count("\n") + 2)
+            display(HTML(f'<textarea readonly rows="{rows}" style="width:100%;font-family:monospace;font-size:12px">'
+                         f'{html.escape(text)}</textarea>'))
+            print("Click inside the box, press Ctrl+A (Cmd+A on a Mac), then Ctrl+C. "
+                  "In the other AI's chat, paste it under the prompt.")
+        except Exception:                                             # noqa: BLE001
+            print(text)
+
 
 show = _Show()
 
