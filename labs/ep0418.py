@@ -603,7 +603,8 @@ class _Check:
         elif n_note:
             print("\nNothing is broken. The NOTE items are real results — write them up.")
         else:
-            print("\nAll checks passed. Write the mistake you caught in the cell at the end.")
+            print("\nAll checks passed. Carry on with the next step; at the end of the notebook,"
+                  " write the mistake you caught in the Mistake caught box.")
         print("=" * width)
         return n_fail == 0
 
