@@ -14,7 +14,7 @@ def main(limit=400):
     while day <= yesterday and added < limit:
         r = rain_daily_row(day.isoformat())
         with open(PATH, "a", newline="") as f:
-            csv.writer(f).writerow([r["date"], r["rain_mm_mean"], r["rain_mm_max"], r["stations_reporting"]])
+            csv.writer(f, lineterminator="\n").writerow([r["date"], r["rain_mm_mean"], r["rain_mm_max"], r["stations_reporting"]])
         print(r, flush=True)
         day += dt.timedelta(days=1); added += 1
     print(f"added {added} day(s); file ends {day - dt.timedelta(days=1)}")

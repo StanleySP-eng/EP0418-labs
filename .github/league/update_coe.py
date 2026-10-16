@@ -24,5 +24,5 @@ old = list(csv.reader(open(PATH))) if os.path.exists(PATH) else []
 assert new[0] == ["month", "bidding_no", "vehicle_class", "quota", "bids_success", "bids_received", "premium"], new[0]
 if len(new) >= len(old):
     with open(PATH, "w", newline="") as f:
-        csv.writer(f).writerows(new)
+        csv.writer(f, lineterminator="\n").writerows(new)
 print(f"coe: {len(new) - 1} rows (was {max(len(old) - 1, 0)})")

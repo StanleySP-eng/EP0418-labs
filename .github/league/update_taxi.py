@@ -28,7 +28,7 @@ def main(limit=24 * 400):
     end = dt.datetime.now(SGT).replace(minute=0, second=0, microsecond=0)   # the hour now running is not complete
     hour, added = last + dt.timedelta(hours=1), 0
     with open(PATH, "a", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         while hour < end and added < limit:
             ts, n = reading(hour)
             if dt.datetime.fromisoformat(ts).astimezone(SGT).replace(minute=0, second=0) == hour:
