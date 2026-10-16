@@ -5,7 +5,8 @@ The entry page runs this file in the browser to build the test cases; the nightl
 runs the same file to freeze entries and to settle them. For each lab:
   data      the file in docs/data/ that predict(history) receives (cut at the close)
   kind      "week": the question is about a Monday-to-Sunday week
-            "coe":  the question is about one COE bidding exercise
+            "coe":  the question is about the next COE bidding exercise after the close,
+                    whenever LTA holds it (the target is ("after", <last exercise seen>))
   answer    what really happened (None until the data has it)
   baseline  the simple rule the board compares everyone with
 """
@@ -37,8 +38,8 @@ LABS = {
               ask="Taxis available in the 18 o'clock reading on the Friday of the target week.",
               baseline_says="the 18 o'clock reading on the last Friday so far"),
     "7": dict(title="What will the next Cat A COE premium be?", unit="S$", data="coe.csv", kind="coe",
-              exercise=("2027-01", "2"), close="2027-01-11", cols=COE_COLS,
-              ask="The Category A premium at the second COE bidding exercise of January 2027.",
+              close="2027-01-11", cols=COE_COLS,
+              ask="The Category A premium at the next COE bidding exercise after entries close.",
               baseline_says="the Category A premium at the most recent exercise"),
     "8": dict(title="Which day will be wettest?", unit="(1 = Mon … 7 = Sun)", data="rain_daily.csv", kind="week",
               week=("2027-01-18", "2027-01-24"), cols=RAIN_COLS,
@@ -114,10 +115,21 @@ def _t(day):                       # midnight at the start of a Singapore day, c
     return pd.Timestamp(day).tz_localize("Asia/Singapore")
 
 
+def _key(df):
+    return df["month"] + "-" + df["bidding_no"].astype(str)
+
+
+def coe_after(df):
+    """At the close: the next exercise after the latest Category A result in the data."""
+    return ("after", _key(df[df["vehicle_class"] == "Category A"]).iloc[-1])
+
+
 def history(lab, df, target):
     """The rows predict() may see when predicting this target (a week start, or a COE exercise)."""
     q = LABS[lab]
     if q["kind"] == "coe":
+        if target[0] == "after":
+            return df[_key(df) <= target[1]].reset_index(drop=True)
         month, no = target
         key = df["month"] + "-" + df["bidding_no"].astype(str)
         return df[key < f"{month}-{no}"].reset_index(drop=True)
@@ -142,8 +154,12 @@ def _reading(df, day, hour):
 def answer(lab, df, target):
     """What really happened, or None if the data does not have it yet."""
     if lab == "7":
-        month, no = target
-        hit = df[(df["month"] == month) & (df["bidding_no"].astype(str) == str(no)) & (df["vehicle_class"] == "Category A")]
+        a = df[df["vehicle_class"] == "Category A"]
+        if target[0] == "after":
+            hit = a[_key(a) > target[1]]
+        else:
+            month, no = target
+            hit = a[(a["month"] == month) & (a["bidding_no"].astype(str) == str(no))]
         return float(hit["premium"].iloc[0]) if len(hit) else None
     w = _week_rows(lab, df, target)
     if lab in ("2", "4", "8"):
@@ -201,6 +217,7 @@ def past_targets(lab, df, n=3):
     return out
 
 
-def target(lab):
+def target(lab, df=None):
+    """What this lab is predicting. For the COE question it depends on the data at the close."""
     q = LABS[lab]
-    return q["exercise"] if q["kind"] == "coe" else q["week"][0]
+    return coe_after(df) if q["kind"] == "coe" else q["week"][0]

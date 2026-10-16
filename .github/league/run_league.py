@@ -54,7 +54,7 @@ def freeze(entries_path):
             if when < close and (name.lower() not in latest or when > latest[name.lower()][0]):
                 latest[name.lower()] = (when, name, r["Code"])
         df = Q.load(lab, os.path.join(DATA, q["data"]))
-        target = os.environ.get("LEAGUE_TARGET") or Q.target(lab)
+        target = os.environ.get("LEAGUE_TARGET") or Q.target(lab, df)
         if isinstance(target, str) and "," in target:
             target = tuple(target.split(","))
         hist = Q.history(lab, df, target)
