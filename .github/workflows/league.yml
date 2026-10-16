@@ -1,0 +1,64 @@
+# The Prediction League, every night at 00:30 Singapore time:
+#   1. bring docs/data up to date: daily rain, hourly taxis, COE results (the page tests on them)
+#   2. at a lab's close, run each person's latest code once and freeze the number
+#   3. after the target week, score the frozen numbers against what really fell
+# Student code runs in a job that cannot push and never sees the entries link.
+name: Prediction League
+on:
+  schedule:
+    - cron: "30 16 * * *"
+  workflow_dispatch:
+concurrency: league
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet pandas numpy scipy scikit-learn statsmodels requests
+      - name: Add yesterday's rainfall
+        run: python .github/league/update_rain.py
+        continue-on-error: true
+      - name: Add the latest taxi hours
+        run: python .github/league/update_taxi.py
+        continue-on-error: true
+      - name: Refresh the COE results
+        run: python .github/league/update_coe.py
+        continue-on-error: true
+      - name: Read the entries (private)
+        env:
+          ENTRIES_CSV_URL: ${{ secrets.LEAGUE_ENTRIES_CSV }}
+        run: python .github/league/run_league.py fetch "$RUNNER_TEMP/entries.json"
+      - name: Freeze any lab that has closed
+        run: python .github/league/run_league.py freeze "$RUNNER_TEMP/entries.json"
+      - name: Settle any week that has ended
+        run: python .github/league/run_league.py settle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: league-data
+          path: docs/data/
+
+  publish:
+    needs: run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: league-data
+          path: docs/data/
+      - name: Commit the new data
+        run: |
+          git config user.name "league-bot"
+          git config user.email "league-bot@users.noreply.github.com"
+          git add docs/data
+          git diff --cached --quiet || (git commit -m "League: nightly data" && git push)
