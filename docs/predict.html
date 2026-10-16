@@ -1,0 +1,366 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EP0418 Prediction League</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Plain course-notes look: white page, serif text, one blue accent, red/green for fail/pass. */
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#5d6470;--rule:#d9dce1;--panel:#f6f7f9;--accent:#1f4e8c;--good:#1b7a3a;--bad:#b3261e;--code-bg:#fbfbfc;
+--serif:"STIX Two Text",Georgia,serif;--sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e8e9eb;--muted:#9aa1ab;--rule:#30343a;--panel:#1d2024;--accent:#7fa7e0;--good:#5cc27f;--bad:#f07a72;--code-bg:#1a1c20;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e8e9eb;--muted:#9aa1ab;--rule:#30343a;--panel:#1d2024;--accent:#7fa7e0;--good:#5cc27f;--bad:#f07a72;--code-bg:#1a1c20;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.55 var(--serif)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1{font-weight:600;font-size:1.9rem;margin:0 0 .2rem;text-wrap:balance}
+.kicker{font:600 .78rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.q{border-top:2px solid var(--fg);border-bottom:1px solid var(--rule);padding:14px 0 12px;margin:14px 0 18px}
+.q p{margin:.25rem 0;max-width:70ch}.q .ask{font-size:1.15rem}
+.meta{font:.88rem var(--sans);color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+label{font:600 .8rem var(--sans);color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:block;margin:0 0 6px}
+input[type=text]{width:100%;font:1rem var(--sans);padding:9px 11px;border:1.5px solid var(--rule);background:var(--bg);color:var(--fg);border-radius:4px}
+.editor{display:flex;border:1.5px solid var(--rule);border-radius:4px;background:var(--code-bg);overflow:hidden}
+.gutter{font:14px/1.6 var(--mono);color:var(--muted);text-align:right;padding:10px 8px 10px 10px;user-select:none;border-right:1px solid var(--rule);white-space:pre;min-width:2.6em}
+textarea{flex:1;min-width:0;min-height:340px;resize:vertical;border:0;outline:0;background:transparent;color:var(--fg);font:14px/1.6 var(--mono);padding:10px 12px;white-space:pre;overflow:auto;tab-size:4}
+input:focus-visible,.editor:focus-within{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 0}
+button{font:600 .95rem var(--sans);padding:9px 18px;border-radius:4px;border:1.5px solid var(--fg);background:var(--bg);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{font:.88rem var(--sans);color:var(--muted)}
+.verdict{font:600 1.35rem var(--sans);margin:0 0 4px}.verdict.ok{color:var(--good)}.verdict.bad{color:var(--bad)}
+.summary{font:.92rem var(--sans);color:var(--muted);margin:0 0 12px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.tab{font:600 .85rem var(--sans);padding:7px 12px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);border-radius:0;cursor:pointer}
+.tab[aria-selected=true]{color:var(--fg);border-bottom-color:var(--fg)}
+.tab .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--rule)}
+.tab .dot.ok{background:var(--good)}.tab .dot.bad{background:var(--bad)}
+.case{padding:14px 0 0;display:grid;gap:12px}
+.field .k{font:600 .75rem var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.box{font:14px/1.5 var(--mono);background:var(--panel);border-radius:4px;padding:9px 12px;white-space:pre-wrap;overflow-x:auto;word-break:break-word;font-variant-numeric:tabular-nums}
+.box.err{color:var(--bad)}.box.empty{color:var(--muted);font-style:italic}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.nums{grid-template-columns:minmax(0,1fr)}}
+.nums .box{font-size:15px}
+.off{font:.85rem var(--sans);margin-top:4px;color:var(--muted)}
+.off b.win{color:var(--good)}.off b.lose{color:var(--bad)}
+.labs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;font:600 .85rem var(--sans)}
+.labs a{color:var(--muted);text-decoration:none;padding:4px 10px;border:1.5px solid var(--rule);border-radius:4px}
+.labs a[aria-current=page]{color:var(--bg);background:var(--fg);border-color:var(--fg)}
+.labs a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.placeholder{color:var(--muted);font-style:italic;padding:18px 0}
+.sent{border:1.5px solid var(--rule);border-radius:4px;padding:12px 14px;margin-top:14px;font:.92rem var(--sans)}
+details{font:.92rem var(--sans);margin-top:18px;color:var(--muted)}details summary{cursor:pointer;color:var(--fg)}
+details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;border-radius:4px;overflow-x:auto;color:var(--fg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div class="wrap">
+
+<nav class="labs" id="labnav" aria-label="Choose the lab"></nav>
+<div class="kicker" id="kicker">EP0418 · Prediction League</div>
+<h1 id="title">Prediction League</h1>
+<div class="q">
+  <p class="ask" id="ask"></p>
+  <p class="meta" id="cols"></p>
+  <p class="meta" id="when"></p>
+</div>
+
+<div class="grid">
+<section aria-label="Your code">
+  <label for="name">Your name</label>
+  <input type="text" id="name" placeholder="Your full name, as on the class list" autocomplete="off" maxlength="40">
+  <div style="height:14px"></div>
+  <label for="code">Code</label>
+  <div class="editor"><div class="gutter" id="gutter" aria-hidden="true">1</div>
+  <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
+  <div class="bar">
+    <button id="run">Run tests</button>
+    <button id="submit" class="primary" disabled title="Run the tests first">Submit</button>
+    <span class="status" id="status">Loading Python in your browser…</span>
+  </div>
+  <div id="sentbox"></div>
+</section>
+
+<section aria-label="Results" aria-live="polite">
+  <div id="results"><p class="placeholder">Press <b>Run tests</b>. Your function runs on the three latest past cases (where the answer is known) and once on all the data so far, which is the number you would enter. The data is updated every night.</p></div>
+</section>
+</div>
+
+<section id="board" aria-label="League results" hidden>
+  <h2 style="font-size:1.3rem;margin:30px 0 6px">Results</h2>
+  <p class="meta" id="boardnote"></p>
+  <div style="overflow-x:auto"><table id="boardtable" style="border-collapse:collapse;width:100%;font:.95rem var(--sans);font-variant-numeric:tabular-nums"></table></div>
+</section>
+
+<details><summary>What counts as one number? What if my code fetches other data?</summary>
+<p>Return a plain number: <code>return 31.4</code>, or <code>return float(x)</code> when <code>x</code> comes out of pandas. A list, a table or <code>None</code> fails the test.</p>
+<p>The tests run in your browser. Some websites refuse requests from a web page, so code that downloads other data may fail here even though it works in Colab. If that happens, the error says so, and you can still submit: at the close your code runs on a normal computer, where downloads work.</p>
+<p>Past weeks are practice. Code that downloads other data could see the real answer for a past week, so practice scores are not ranked. Only the frozen run at the close is ranked.</p>
+</details>
+</div>
+
+<script>
+const META = {"2": {"title": "How much rain next week?", "unit": "mm", "data": "rain_daily.csv", "kind": "week", "close": "2026-11-02", "cols": "date, rain_mm_mean (island average, mm), rain_mm_max (wettest gauge, mm) and stations_reporting", "ask": "Singapore's island-average rainfall in mm, summed over the target week.", "baseline_says": "next week will be like last week (the last seven days, summed)", "week": ["2026-11-02", "2026-11-08"], "starter": "def predict(history):\n    # the baseline: next week will be like last week\n    last_week = history[\"rain_mm_mean\"].tail(7)\n    print(\"last 7 days:\", last_week.round(1).tolist())\n    return float(last_week.sum())\n"}, "3": {"title": "How many taxis at 8 am on Monday?", "unit": "taxis", "data": "taxi_hourly.csv", "kind": "week", "close": "2026-11-09", "cols": "timestamp (one reading per hour, Singapore time) and taxi_count", "ask": "Taxis available across Singapore in the 8 o'clock reading on the Monday of the target week.", "baseline_says": "the average of every Monday 8 o'clock reading so far", "week": ["2026-11-09", "2026-11-15"], "starter": "def predict(history):\n    # the baseline: the average of every Monday 8 o'clock reading so far\n    ts = history[\"timestamp\"]\n    mondays = history[(ts.dt.weekday == 0) & (ts.dt.hour == 8)]\n    print(\"Mondays at 8:\", mondays[\"taxi_count\"].tolist())\n    return float(mondays[\"taxi_count\"].mean())\n"}, "4": {"title": "How many dry days next week?", "unit": "days", "data": "rain_daily.csv", "kind": "week", "close": "2026-11-16", "cols": "date, rain_mm_mean (island average, mm), rain_mm_max (wettest gauge, mm) and stations_reporting", "ask": "On how many of the seven days of the target week the island-average rain is zero (under 0.05 mm).", "baseline_says": "the share of dry days in the last sixty days, times seven, rounded", "week": ["2026-11-16", "2026-11-22"], "starter": "def predict(history):\n    # the baseline: the share of dry days in the last sixty days, times seven\n    dry = history[\"rain_mm_mean\"].tail(60) < 0.05\n    print(\"dry days in the last sixty:\", int(dry.sum()))\n    return float(round(dry.mean() * 7))\n"}, "5": {"title": "What will the busiest hour's taxi count be?", "unit": "taxis", "data": "taxi_hourly.csv", "kind": "week", "close": "2026-11-30", "cols": "timestamp (one reading per hour, Singapore time) and taxi_count", "ask": "The largest hourly taxi-availability count during the target week.", "baseline_says": "the largest hourly count in the last seven days", "week": ["2026-11-30", "2026-12-06"], "starter": "import pandas as pd\n\ndef predict(history):\n    # the baseline: the busiest hour of the last seven days\n    last_week = history[history[\"timestamp\"] > history[\"timestamp\"].max() - pd.Timedelta(days=7)]\n    print(\"hours in the last week:\", len(last_week))\n    return float(last_week[\"taxi_count\"].max())\n"}, "6": {"title": "How many taxis at 6 pm on Friday?", "unit": "taxis", "data": "taxi_hourly.csv", "kind": "week", "close": "2026-12-07", "cols": "timestamp (one reading per hour, Singapore time) and taxi_count", "ask": "Taxis available in the 18 o'clock reading on the Friday of the target week.", "baseline_says": "the 18 o'clock reading on the last Friday so far", "week": ["2026-12-07", "2026-12-13"], "starter": "def predict(history):\n    # the baseline: the 18 o'clock reading on the last Friday\n    ts = history[\"timestamp\"]\n    fridays = history[(ts.dt.weekday == 4) & (ts.dt.hour == 18)]\n    print(\"last three Fridays at 6 pm:\", fridays[\"taxi_count\"].tail(3).tolist())\n    return float(fridays[\"taxi_count\"].iloc[-1])\n"}, "7": {"title": "What will the next Cat A COE premium be?", "unit": "S$", "data": "coe.csv", "kind": "coe", "close": "2027-01-11", "cols": "month, bidding_no, vehicle_class, quota, bids_success, bids_received and premium (S$)", "ask": "The Category A premium at the second COE bidding exercise of January 2027.", "baseline_says": "the Category A premium at the most recent exercise", "week": null, "starter": "def predict(history):\n    # the baseline: the Category A premium at the most recent exercise\n    cat_a = history[history[\"vehicle_class\"] == \"Category A\"]\n    print(\"last three premiums:\", cat_a[\"premium\"].tail(3).tolist())\n    return float(cat_a[\"premium\"].iloc[-1])\n"}, "8": {"title": "Which day will be wettest?", "unit": "(1 = Mon \u2026 7 = Sun)", "data": "rain_daily.csv", "kind": "week", "close": "2027-01-18", "cols": "date, rain_mm_mean (island average, mm), rain_mm_max (wettest gauge, mm) and stations_reporting", "ask": "Which day of the target week has the most island-average rain: 1 for Monday through 7 for Sunday.", "baseline_says": "the weekday with the most rain on average over the last nine weeks", "week": ["2027-01-18", "2027-01-24"], "starter": "def predict(history):\n    # the baseline: the weekday with the most rain on average over the last nine weeks\n    recent = history.tail(63)\n    by_day = recent.groupby(recent[\"date\"].dt.dayofweek)[\"rain_mm_mean\"].mean()\n    print(\"average mm, Monday to Sunday:\", by_day.round(1).tolist())\n    return float(by_day.idxmax() + 1)\n"}};
+const params = new URLSearchParams(location.search);
+const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Singapore date
+let LAB = params.get("lab") || (location.hash.match(/lab(\d)/) || [])[1];
+if (!META[LAB]) LAB = Object.keys(META).find(k => META[k].close > today) || Object.keys(META).pop();
+const Q = META[LAB];
+const STARTER = Q.starter;
+let CASES = [{label:"Case 1"},{label:"Case 2"},{label:"Case 3"},{label:"Your entry"}];
+let QSRC = null, DATA_TEXT = null;
+const files = Promise.all([
+  fetch("league_questions.py", {cache: "no-store"}).then(r => r.text()).then(t => { QSRC = t; }),
+  fetch("data/" + Q.data, {cache: "no-store"}).then(r => r.text()).then(t => { DATA_TEXT = t; })
+]).catch(() => { document.getElementById("status").textContent = "The league data could not load. Reload the page."; });
+
+const DAY = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-GB", {weekday: "long", day: "numeric", month: "long", timeZone: "UTC"});
+const prevDay = d => new Date(Date.parse(d + "T00:00:00Z") - 864e5).toISOString().slice(0, 10);
+document.title = "EP0418 Prediction League · Lab " + LAB;
+document.getElementById("labnav").innerHTML = Object.keys(META).map(k =>
+  `<a href="?lab=${k}"${k === LAB ? ' aria-current="page"' : ""}>Lab ${k}</a>`).join("");
+document.getElementById("kicker").textContent = "EP0418 · Prediction League · Lab " + LAB;
+document.getElementById("title").textContent = Q.title;
+document.getElementById("ask").innerHTML = "Write <code>predict(history)</code>. It must return <b>one number</b>: " + Q.ask;
+document.getElementById("cols").innerHTML = "<b>history</b> is a pandas table with the columns " + Q.cols +
+  ", cut at the close: the same columns as the Lab " + LAB + " file. You may also pull in any other public data inside your function.";
+document.getElementById("when").textContent = "Entries close " + DAY(prevDay(Q.close)) + ", 23:59. At the close every entry is run once on the data up to then and its number is frozen. " +
+  (Q.kind === "coe" ? "Reality settles it when LTA publishes the result of that exercise." : "Reality settles it after " + DAY(Q.week[1]) + ".") +
+  " The board compares everyone with the simple rule: " + Q.baseline_says + ". Individual work: one entry per person; your latest submission counts.";
+const HARNESS = `
+import io, json, time, math, sys, contextlib, traceback
+import pandas as pd
+sys.path.insert(0, "/home/pyodide")
+import league_questions as Q
+
+def _clean_tb(e):
+    te = traceback.TracebackException.from_exception(e)
+    te.stack = traceback.StackSummary.from_list([f for f in te.stack if f.filename == "<your code>"])
+    text = "".join(te.format(chain=False))
+    net = any(w in text for w in ("urlopen", "URLError", "OSError", "pyfetch", "NetworkError", "Failed to fetch", "Connection"))
+    return text, net
+
+def run_one(code, hist, expected, base):
+    res = {"days": len(hist), "expected": expected, "baseline": base}
+    buf = io.StringIO(); t0 = time.time()
+    try:
+        ns = {"__name__": "__main__"}
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            exec(compile(code, "<your code>", "exec"), ns)
+            f = ns.get("predict")
+            if not callable(f):
+                raise NameError("There is no function called predict. Your code must contain:  def predict(history):")
+            val = f(hist.copy())
+        if isinstance(val, bool) or val is None or isinstance(val, (str, list, tuple, dict, pd.Series, pd.DataFrame)):
+            res.update(ok=False, kind="Wrong output type",
+                       error="predict returned " + (repr(val)[:200] if not hasattr(val, "shape") else type(val).__name__ + " with shape " + str(val.shape))
+                             + ". Return one number, for example  return float(total)")
+        else:
+            v = float(val)
+            if not math.isfinite(v):
+                res.update(ok=False, kind="Wrong output type", error="predict returned " + str(v) + ". Return a real number, not NaN or infinity.")
+            else:
+                res.update(ok=True, value=v)
+    except Exception as e:
+        text, net = _clean_tb(e)
+        res.update(ok=False, kind="Runtime error", error=text, net=net)
+    res["stdout"] = buf.getvalue()[-6000:]
+    res["ms"] = int((time.time() - t0) * 1000)
+    return res
+
+def _span(lab, h):
+    col = "timestamp" if "timestamp" in h else ("date" if "date" in h else None)
+    if col is None:
+        last = h.iloc[-1]
+        return f"{len(h)} rows, up to the {last['month']} exercise {last['bidding_no']}"
+    n = 10 if col == "date" else 16
+    return f"{len(h)} rows, {str(h[col].min())[:10]} to {str(h[col].max())[:n]}"
+
+def run_all(code, lab):
+    df = Q.load(lab, "/home/pyodide/data.csv")
+    out = []
+    for t in Q.past_targets(lab, df):
+        hist = Q.history(lab, df, t)
+        r = run_one(code, hist, Q.answer(lab, df, t), Q.baseline(lab, hist))
+        r["target"] = (f"the {t[0]} exercise {t[1]}" if isinstance(t, tuple) else f"the week from Monday {t}")
+        r["span"] = _span(lab, hist); out.append(r)
+    r = run_one(code, df, None, Q.baseline(lab, df))
+    r["target"] = None; r["span"] = _span(lab, df); out.append(r)
+    return json.dumps(out)
+`;
+const WORKER_SRC = `
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+let py;
+const ready = (async () => {
+  py = await loadPyodide();
+  await py.loadPackage("pandas");
+  self.postMessage({type: "ready"});
+})();
+self.onmessage = async (e) => {
+  await ready;
+  const {qsrc, data, harness, code, lab} = e.data;
+  try {
+    py.FS.writeFile("/home/pyodide/league_questions.py", qsrc);
+    py.FS.writeFile("/home/pyodide/data.csv", data);
+    if (!py.globals.get("run_all")) py.runPython(harness);
+    try { await py.loadPackagesFromImports(code); } catch (err) {}
+    py.globals.set("USER_CODE", code); py.globals.set("LAB", lab);
+    self.postMessage({type: "result", out: py.runPython("run_all(USER_CODE, LAB)")});
+  } catch (err) { self.postMessage({type: "crash", error: String(err)}); }
+};`;
+const TIME_LIMIT = 30000;
+
+const $ = id => document.getElementById(id);
+const codeEl = $("code"), nameEl = $("name"), statusEl = $("status");
+let worker, ready = false, readyWaiters = [], lastRun = null;
+
+function store(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+function load(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+codeEl.value = load("ep0418-pred-code-" + LAB) || STARTER;
+nameEl.value = load("ep0418-pred-name") || "";
+
+function gutter(){ const n = codeEl.value.split("\n").length; $("gutter").textContent = Array.from({length:n},(_, i)=>i+1).join("\n"); }
+codeEl.addEventListener("scroll", () => { $("gutter").scrollTop = codeEl.scrollTop; });
+codeEl.addEventListener("input", () => { gutter(); store("ep0418-pred-code-" + LAB, codeEl.value); invalidate(); });
+nameEl.addEventListener("input", () => { store("ep0418-pred-name", nameEl.value); updateSubmit(); });
+codeEl.addEventListener("keydown", e => {
+  if (e.key === "Tab") { e.preventDefault(); const s = codeEl.selectionStart, t = codeEl.selectionEnd;
+    codeEl.setRangeText("    ", s, t, "end"); codeEl.dispatchEvent(new Event("input")); }
+  else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runTests(); }
+  else if (e.key === "Enter") { const s = codeEl.selectionStart; const line = codeEl.value.slice(0, s).split("\n").pop();
+    let ind = line.match(/^\s*/)[0]; if (/:\s*$/.test(line)) ind += "    ";
+    e.preventDefault(); codeEl.setRangeText("\n" + ind, s, codeEl.selectionEnd, "end"); codeEl.dispatchEvent(new Event("input")); }
+});
+gutter();
+
+function startWorker(){
+  ready = false;
+  worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], {type: "text/javascript"})));
+  worker.addEventListener("message", e => { if (e.data.type === "ready") { ready = true; statusEl.textContent = "Python is ready. Ctrl+Enter also runs the tests."; readyWaiters.splice(0).forEach(f => f()); } });
+  worker.addEventListener("error", () => { statusEl.textContent = "Python could not load. Check your internet connection and reload the page."; });
+}
+startWorker();
+const whenReady = () => ready ? Promise.resolve() : new Promise(r => readyWaiters.push(r));
+
+async function runTests(){
+  $("run").disabled = true; $("submit").disabled = true;
+  if (!ready) statusEl.textContent = "Loading Python in your browser (first time takes about 15 seconds)…";
+  await whenReady(); await files;
+  statusEl.textContent = "Running your code on 4 cases…";
+  const code = codeEl.value;
+  const outcome = await new Promise(resolve => {
+    const timer = setTimeout(() => { worker.terminate(); startWorker(); resolve({timeout: true}); }, TIME_LIMIT);
+    const onMsg = e => { if (e.data.type === "result" || e.data.type === "crash") { clearTimeout(timer); worker.removeEventListener("message", onMsg); resolve(e.data); } };
+    worker.addEventListener("message", onMsg);
+    worker.postMessage({qsrc: QSRC, data: DATA_TEXT, harness: HARNESS, code, lab: LAB});
+  });
+  $("run").disabled = false;
+  if (outcome.timeout) { lastRun = null; render({timeout: true}); statusEl.textContent = "Stopped after 30 seconds. Python is restarting."; return; }
+  if (outcome.type === "crash") { lastRun = null; render({crash: outcome.error}); statusEl.textContent = ""; return; }
+  const results = JSON.parse(outcome.out);
+  lastRun = {code, results, ok: results.every(r => r.ok)};
+  render(lastRun); statusEl.textContent = ""; updateSubmit();
+}
+$("run").addEventListener("click", runTests);
+
+function invalidate(){ if (lastRun) { lastRun.stale = true; updateSubmit(); } }
+function updateSubmit(){
+  const ok = lastRun && lastRun.ok && !lastRun.stale && nameEl.value.trim();
+  $("submit").disabled = !ok;
+  $("submit").title = !lastRun || lastRun.stale ? "Run the tests on this code first" : !lastRun.ok ? "Every case must run without an error" : !nameEl.value.trim() ? "Type your name first" : "";
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const WD = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const fmt = v => {
+  if (v == null) return "–";
+  v = +v;
+  if (Q.unit === "mm") return v.toFixed(1) + " mm";
+  if (Q.unit === "taxis") return Math.round(v).toLocaleString("en-SG") + " taxis";
+  if (Q.unit === "days") return (Number.isInteger(v) ? v : v.toFixed(1)) + " days";
+  if (Q.unit === "S$") return "S$" + Math.round(v).toLocaleString("en-SG");
+  return (Number.isInteger(v) ? v : v.toFixed(1)) + (WD[v] ? " (" + WD[v] + ")" : "");
+};
+const fmtd = v => Q.unit === "S$" ? "S$" + Math.round(v).toLocaleString("en-SG") : Q.unit === "taxis" ? Math.round(v).toLocaleString("en-SG") + " taxis" : (+v).toFixed(1) + (Q.unit === "mm" ? " mm" : "");
+let tabSel = 0;
+function render(run){
+  const el = $("results");
+  if (run.timeout) { el.innerHTML = '<p class="verdict bad">Time limit exceeded</p><p class="summary">Your code ran for more than 30 seconds. Look for a loop that never ends, or a download that hangs.</p>'; return; }
+  if (run.crash) { el.innerHTML = '<p class="verdict bad">Something went wrong in the page</p><div class="box err">' + esc(run.crash) + '</div>'; return; }
+  const rs = run.results, fail = rs.find(r => !r.ok);
+  const graded = rs.filter(r => r.target && r.ok);
+  let summary = "";
+  if (graded.length) {
+    const you = graded.reduce((a, r) => a + Math.abs(r.value - r.expected), 0) / graded.length;
+    const base = graded.reduce((a, r) => a + Math.abs(r.baseline - r.expected), 0) / graded.length;
+    summary = `Past cases: your average miss <b>${fmtd(you)}</b>; the simple rule missed by ${fmtd(base)}. Practice only, not ranked.`;
+  }
+  el.innerHTML = (fail ? `<p class="verdict bad">${esc(fail.kind)}</p>` : `<p class="verdict ok">All 4 cases ran</p>`) +
+    `<p class="summary">${summary || (fail ? "Fix the case marked red, then run the tests again." : "")}</p>` +
+    '<div class="tabs" role="tablist">' + rs.map((r, i) =>
+      `<button class="tab" role="tab" aria-selected="${i === tabSel}" data-i="${i}"><span class="dot ${r.ok ? "ok" : "bad"}"></span>${CASES[i].label}</button>`).join("") + "</div>" +
+    '<div id="case"></div>';
+  el.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { tabSel = +b.dataset.i; render(run); }));
+  showCase(rs[tabSel], CASES[tabSel]);
+}
+function showCase(r, c){
+  const input = r.target
+    ? `history = ${r.span}\npredicting ${r.target}`
+    : `history = all the data so far: ${r.span}\nthis is the number you would enter if entries closed now`;
+  let nums;
+  if (!r.ok) nums = `<div class="field"><div class="k">${esc(r.kind)}</div><div class="box err">${esc(r.error)}</div>` +
+      (r.net ? '<div class="off">This looks like a download that the browser blocked. It may work at the close, where downloads are allowed; you can still submit once the other cases run.</div>' : "") + "</div>";
+  else if (r.target) {
+    const you = Math.abs(r.value - r.expected), base = Math.abs(r.baseline - r.expected);
+    nums = `<div class="nums"><div class="field"><div class="k">Output</div><div class="box">${fmt(r.value)}</div></div>
+      <div class="field"><div class="k">Actual</div><div class="box">${fmt(r.expected)}</div></div>
+      <div class="field"><div class="k">Simple rule</div><div class="box">${fmt(r.baseline)}</div></div></div>
+      <div class="off">You missed by <b class="${you < base - 1e-6 ? "win" : you > base + 1e-6 ? "lose" : ""}">${fmtd(you)}</b>; the simple rule missed by ${fmtd(base)}. Ran in ${r.ms} ms.</div>`;
+  } else nums = `<div class="nums"><div class="field"><div class="k">Output</div><div class="box">${fmt(r.value)}</div></div>
+      <div class="field"><div class="k">Actual</div><div class="box empty">not known yet</div></div>
+      <div class="field"><div class="k">Simple rule</div><div class="box">${fmt(r.baseline)}</div></div></div>`;
+  $("case").innerHTML = `<div class="case"><div class="field"><div class="k">Input</div><div class="box">${esc(input)}</div></div>
+    <div class="field"><div class="k">Stdout (what your print lines showed)</div><div class="box ${r.stdout ? "" : "empty"}">${r.stdout ? esc(r.stdout) : "nothing printed"}</div></div>${nums}</div>`;
+}
+
+(async () => {                      // after the close: the frozen numbers, then the ranking
+  const get = u => fetch(u, {cache: "no-store"}).then(r => r.ok ? r.json() : null).catch(() => null);
+  const res = await get(`data/results_lab${LAB}.json`), fz = res || await get(`data/frozen_lab${LAB}.json`);
+  if (!fz) return;
+  const cell = (t, b) => `<td style="padding:6px 10px;border-bottom:1px solid var(--rule)${b ? ";font-weight:600" : ""}">${t}</td>`;
+  const head = h => "<tr>" + h.map(x => `<th style="text-align:left;padding:6px 10px;border-bottom:2px solid var(--rule);color:var(--muted)">${x}</th>`).join("") + "</tr>";
+  let rows;
+  if (res) {
+    $("boardnote").textContent = `Settled: the real answer was ${fmt(res.actual)}. The simple rule said ${fmt(res.baseline)} and missed by ${fmtd(res.baseline_off_by)}.`;
+    rows = head(["#", "Name", "Frozen number", "Missed by"]) + res.ranked.map((e, i) =>
+      "<tr>" + cell(i + 1) + cell(esc(e.name), i === 0) + cell(fmt(e.value)) + cell(fmtd(e.off_by)) + "</tr>").join("") +
+      res.no_number.map(e => "<tr>" + cell("–") + cell(esc(e.name)) + cell(esc(e.status)) + cell("") + "</tr>").join("");
+  } else {
+    $("boardnote").textContent = `Entries closed. Each entry ran once on the data up to the close (${fz.history_rows} rows); these numbers are frozen until reality settles them.`;
+    rows = head(["Name", "Frozen number", "Submitted"]) + fz.entries.map(e =>
+      "<tr>" + cell(esc(e.name)) + cell(e.status === "ok" ? fmt(e.value) : esc(e.status)) + cell(esc(e.submitted)) + "</tr>").join("");
+  }
+  $("boardtable").innerHTML = rows; $("board").hidden = false;
+})();
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdwpzHafC_rmPDdbK_cm6J8CihD-NSVS7ZBUyYCWIrS_MMJ0g/formResponse", FIELDS = {"team": "entry.911171418", "lab": "entry.1890998159", "prediction": "entry.959891957", "method": "entry.1997288724"};
+$("submit").addEventListener("click", async () => {
+  if ($("submit").disabled) return;
+  const entry = lastRun.results[lastRun.results.length - 1], name = nameEl.value.trim();
+  $("submit").disabled = true;
+  if (!FORM_URL) {
+    $("sentbox").innerHTML = `<div class="sent"><b>Preview only: nothing was sent.</b> Submissions are not switched on yet.</div>`; updateSubmit(); return;
+  }
+  const body = new URLSearchParams({[FIELDS.team]: name, [FIELDS.lab]: LAB, [FIELDS.prediction]: entry.value.toFixed(3), [FIELDS.method]: lastRun.code});
+  try {
+    await fetch(FORM_URL, {method: "POST", mode: "no-cors", body});
+    const when = new Date().toLocaleString("en-SG", {dateStyle: "medium", timeStyle: "short"});
+    $("sentbox").innerHTML = `<div class="sent"><b>Submitted at ${esc(when)}.</b> ${esc(name)}, your code is in.
+      If entries closed now your number would be <b>${fmt(entry.value)}</b>; the real one is frozen at the close.
+      You can submit again until then; the latest one counts.</div>`;
+  } catch (e) {
+    $("sentbox").innerHTML = `<div class="sent"><b>Not sent.</b> Check your internet connection and press Submit again.</div>`;
+  }
+  updateSubmit();
+});
+</script></body></html>
