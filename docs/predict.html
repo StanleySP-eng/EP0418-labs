@@ -80,6 +80,14 @@ details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;borde
     <span class="status" id="status">Loading Python in your browser…</span>
   </div>
   <div id="sentbox"></div>
+  <section id="entries" hidden>
+    <h2 style="font-size:1.3rem;margin:30px 0 6px">Entries for this lab</h2>
+    <p class="meta" id="entriesnote"></p>
+    <div style="overflow-x:auto"><table id="entriestable" style="border-collapse:collapse;width:100%;font:.95rem var(--sans);font-variant-numeric:tabular-nums"></table></div>
+    <h3 style="font-size:1.05rem;margin:22px 0 6px">Your submissions</h3>
+    <p class="meta" id="minenote"></p>
+    <div style="overflow-x:auto"><table id="minetable" style="border-collapse:collapse;width:100%;font:.95rem var(--sans);font-variant-numeric:tabular-nums"></table></div>
+  </section>
 </section>
 
 <section aria-label="Results" aria-live="polite">
@@ -348,6 +356,59 @@ function showCase(r, c){
   }
   $("boardtable").innerHTML = rows; $("board").hidden = false;
 })();
+const PSHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsqMuE2mROxNGyQb5e926p3pyWkoSjIBdGKCetxgdi1FAfDC_fzba2Gho29d1xtDs_3SPQncl2LVCu/pub?gid=981299993&single=true&output=csv";
+function parseCSV(t) {                        // quoted fields may hold commas and line breaks (the code column does)
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n") { row.push(f); rows.push(row); row = []; f = ""; }
+    else if (c !== "\r") f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+let SHEET_ROWS = [], PENDING = [], SHEET_OK = false;
+const E_CELL = (t, b) => `<td style="padding:6px 10px;border-bottom:1px solid var(--rule)${b ? ";font-weight:600" : ""}">${t}</td>`;
+const E_HEAD = h => "<tr>" + h.map(x => `<th style="text-align:left;padding:6px 10px;border-bottom:2px solid var(--rule);color:var(--muted)">${x}</th>`).join("") + "</tr>";
+function renderEntries() {
+  if (!PSHEET) return;
+  const me = (nameEl.value || "").trim().toLowerCase();
+  const latest = {};
+  for (const r of SHEET_ROWS) latest[r[1].trim().toLowerCase()] = {name: r[1].trim(), value: r[3], when: r[0]};
+  for (const p of PENDING) if (!latest[p.name.toLowerCase()] || p.fresh) latest[p.name.toLowerCase()] = {name: p.name, value: p.value, when: p.when};
+  const list = Object.values(latest).sort((a, b) => a.name.localeCompare(b.name));
+  $("entriesnote").textContent = SHEET_OK
+    ? `${list.length} ${list.length === 1 ? "person has" : "people have"} entered this lab so far (latest entry each). Reality settles it after the target week; the ranking appears below once it does.`
+    : "Could not load the entries. They will appear here once the connection works.";
+  $("entriestable").innerHTML = E_HEAD(["Name", "Number your code gave", "Submitted"]) + list.map(e => {
+    const mine = e.name.toLowerCase() === me;
+    return `<tr${mine ? ' style="background:var(--panel)"' : ""}>` + E_CELL(esc(e.name) + (mine ? " (you)" : ""), mine) + E_CELL(fmt(+e.value), mine) + E_CELL(esc(e.when), mine) + "</tr>";
+  }).join("");
+  const mineRows = me ? SHEET_ROWS.filter(r => r[1].trim().toLowerCase() === me).map(r => ({value: r[3], when: r[0]})) : [];
+  for (const p of PENDING) if (p.name.toLowerCase() === me && !mineRows.some(m => Math.abs(+m.value - +p.value) < 0.0005 && m.when === p.when)) mineRows.push({value: p.value, when: p.when, pending: true});
+  if (!me) { $("minenote").textContent = "Type your name above to see your own submissions."; $("minetable").innerHTML = ""; }
+  else if (!mineRows.length) { $("minenote").textContent = "No submissions under this name yet."; $("minetable").innerHTML = ""; }
+  else {
+    $("minenote").textContent = `${mineRows.length} ${mineRows.length === 1 ? "submission" : "submissions"} under this name. The latest one counts. A new one can take a few minutes to show here.`;
+    $("minetable").innerHTML = E_HEAD(["#", "Number your code gave", "Submitted", ""]) + mineRows.map((m, i) =>
+      "<tr>" + E_CELL(i + 1) + E_CELL(fmt(+m.value), i === mineRows.length - 1) + E_CELL(esc(m.when)) + E_CELL(i === mineRows.length - 1 ? "counts" : "") + "</tr>").join("");
+  }
+  $("entries").hidden = false;
+}
+async function loadEntries() {
+  if (!PSHEET) return;
+  try {
+    const t = await fetch(PSHEET + (PSHEET.includes("?") ? "&" : "?") + "cb=" + Date.now(), {cache: "no-store"}).then(r => r.text());
+    SHEET_ROWS = parseCSV(t).slice(1).filter(r => r.length >= 4 && r[1].trim() && r[2].trim() === String(LAB));
+    SHEET_OK = true;
+  } catch (e) { SHEET_OK = false; }
+  renderEntries();
+}
+nameEl.addEventListener("input", renderEntries);
+loadEntries(); setInterval(loadEntries, 60000);
 const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdwpzHafC_rmPDdbK_cm6J8CihD-NSVS7ZBUyYCWIrS_MMJ0g/formResponse", FIELDS = {"team": "entry.911171418", "lab": "entry.1890998159", "prediction": "entry.959891957", "method": "entry.1997288724"};
 $("submit").addEventListener("click", async () => {
   if ($("submit").disabled) return;
@@ -362,7 +423,9 @@ $("submit").addEventListener("click", async () => {
     const when = new Date().toLocaleString("en-SG", {dateStyle: "medium", timeStyle: "short"});
     $("sentbox").innerHTML = `<div class="sent"><b>Submitted at ${esc(when)}.</b> ${esc(name)}, your code is in.
       If entries closed now your number would be <b>${fmt(entry.value)}</b>; the real one is frozen at the close.
-      You can submit again until then; the latest one counts.</div>`;
+      You can submit again until then; the latest one counts. <a href="#entries">See the entries below.</a></div>`;
+    PENDING.push({name, value: entry.value.toFixed(3), when, fresh: true}); renderEntries();
+    setTimeout(loadEntries, 30000);
   } catch (e) {
     $("sentbox").innerHTML = `<div class="sent"><b>Not sent.</b> Check your internet connection and press Submit again.</div>`;
   }
