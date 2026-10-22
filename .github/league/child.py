@@ -6,6 +6,8 @@ job = json.loads(sys.stdin.read())
 sys.path.insert(0, job["questions"])
 import league_questions as Q                     # the same loader the page uses, so dtypes match
 hist = Q.load(job["lab"], job["history"])
+import netcache                                  # downloads: once per address, shared by every entry
+netcache.install(job.get("cache"))
 sys.path.pop(0)
 buf, res = io.StringIO(), {}
 try:

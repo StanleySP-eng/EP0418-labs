@@ -109,9 +109,10 @@ if (!META[LAB]) LAB = Object.keys(META).find(k => META[k].close > today) || Obje
 const Q = META[LAB];
 const STARTER = Q.starter;
 let CASES = [{label:"Case 1"},{label:"Case 2"},{label:"Case 3"},{label:"Your entry"}];
-let QSRC = null, DATA_TEXT = null;
+let QSRC = null, DATA_TEXT = null, NETSRC = null;
 const files = Promise.all([
   fetch("league_questions.py", {cache: "no-store"}).then(r => r.text()).then(t => { QSRC = t; }),
+  fetch("netcache.py", {cache: "no-store"}).then(r => r.text()).then(t => { NETSRC = t; }),
   fetch("data/" + Q.data, {cache: "no-store"}).then(r => r.text()).then(t => { DATA_TEXT = t; })
 ]).catch(() => { document.getElementById("status").textContent = "The league data could not load. Reload the page."; });
 
@@ -124,7 +125,7 @@ document.getElementById("kicker").textContent = "EP0418 · Prediction League · 
 document.getElementById("title").textContent = Q.title;
 document.getElementById("ask").innerHTML = "Write <code>predict(history)</code>. It must return <b>one number</b>: " + Q.ask;
 document.getElementById("cols").innerHTML = "<b>history</b> is a pandas table with the columns " + Q.cols +
-  ", cut at the close: the same columns as the Lab " + LAB + " file. You may also pull in any other public data inside your function.";
+  ", cut at the close: the same columns as the Lab " + LAB + " file. You may also download other public data inside your function, for example from data.gov.sg (requests or urllib both work here); keep it under 30 seconds. The past cases are practice: a download gives today's data, not that week's.";
 document.getElementById("when").textContent = "Entries close " + DAY(prevDay(Q.close)) + ", 23:59. At the close every entry is run once on the data up to then and its number is frozen. " +
   (Q.kind === "coe" ? "Reality settles it when LTA publishes the result of that exercise." : "Reality settles it after " + DAY(Q.week[1]) + ".") +
   " The board compares everyone with the simple rule: " + Q.baseline_says + ". Individual work: one entry per person; your latest submission counts.";
@@ -133,6 +134,8 @@ import io, json, time, math, sys, contextlib, traceback
 import pandas as pd
 sys.path.insert(0, "/home/pyodide")
 import league_questions as Q
+import netcache
+netcache.install()          # each address downloads once; the four cases share it
 
 def _clean_tb(e):
     te = traceback.TracebackException.from_exception(e)
@@ -194,14 +197,16 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
 let py;
 const ready = (async () => {
   py = await loadPyodide();
-  await py.loadPackage("pandas");
+  await py.loadPackage(["pandas", "requests", "pyodide-http"]);
+  py.runPython("import pyodide_http; pyodide_http.patch_all()");   // requests and urllib download through the browser
   self.postMessage({type: "ready"});
 })();
 self.onmessage = async (e) => {
   await ready;
-  const {qsrc, data, harness, code, lab} = e.data;
+  const {qsrc, netsrc, data, harness, code, lab} = e.data;
   try {
     py.FS.writeFile("/home/pyodide/league_questions.py", qsrc);
+    py.FS.writeFile("/home/pyodide/netcache.py", netsrc);
     py.FS.writeFile("/home/pyodide/data.csv", data);
     if (!py.globals.get("run_all")) py.runPython(harness);
     try { await py.loadPackagesFromImports(code); } catch (err) {}
@@ -253,7 +258,7 @@ async function runTests(){
     const timer = setTimeout(() => { worker.terminate(); startWorker(); resolve({timeout: true}); }, TIME_LIMIT);
     const onMsg = e => { if (e.data.type === "result" || e.data.type === "crash") { clearTimeout(timer); worker.removeEventListener("message", onMsg); resolve(e.data); } };
     worker.addEventListener("message", onMsg);
-    worker.postMessage({qsrc: QSRC, data: DATA_TEXT, harness: HARNESS, code, lab: LAB});
+    worker.postMessage({qsrc: QSRC, netsrc: NETSRC, data: DATA_TEXT, harness: HARNESS, code, lab: LAB});
   });
   $("run").disabled = false;
   if (outcome.timeout) { lastRun = null; render({timeout: true}); statusEl.textContent = "Stopped after 30 seconds. Python is restarting."; return; }

@@ -69,6 +69,7 @@ def freeze(entries_path):
                 try:
                     p = subprocess.run([sys.executable, "-I", os.path.join(HERE, "child.py")],
                                        input=json.dumps({"code": code, "history": hpath, "lab": lab,
+                                                         "cache": os.path.join(tmp, "downloads"),
                                                          "questions": os.path.join(HERE, "..", "..", "docs")}),
                                        capture_output=True, text=True, timeout=TIME_LIMIT, cwd=work,
                                        env={"PATH": os.environ.get("PATH", ""), "HOME": work}, start_new_session=True)
