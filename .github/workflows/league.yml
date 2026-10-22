@@ -1,5 +1,5 @@
 # The Prediction League, every night at 00:30 Singapore time:
-#   1. bring docs/data up to date: daily rain, hourly taxis, COE results (the page tests on them)
+#   1. bring docs/data up to date: daily rain, hourly taxis, hourly PSI, COE results (the page tests on them)
 #   2. at a lab's close, run each person's latest code once and freeze the number
 #   3. after the target week, score the frozen numbers against what really fell
 # Student code runs in a job that cannot push and never sees the entries link.
@@ -28,6 +28,9 @@ jobs:
         continue-on-error: true
       - name: Add the latest taxi hours
         run: python .github/league/update_taxi.py
+        continue-on-error: true
+      - name: Add yesterday's haze (PSI)
+        run: python .github/league/update_psi.py
         continue-on-error: true
       - name: Refresh the COE results
         run: python .github/league/update_coe.py

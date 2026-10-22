@@ -12,11 +12,19 @@ runs the same file to freeze entries and to settle them. For each lab:
 """
 import pandas as pd
 
+HOURLY = ("taxi_hourly.csv", "psi_hourly.csv")      # one row per hour, timestamped in Singapore time
+
 TAXI_COLS = "timestamp (one reading per hour, Singapore time) and taxi_count"
 RAIN_COLS = "date, rain_mm_mean (island average, mm), rain_mm_max (wettest gauge, mm) and stations_reporting"
+PSI_COLS = ("timestamp (one reading per hour, Singapore time), psi_north, psi_south, psi_east, psi_west, "
+            "psi_central (the 24-hour PSI in each region) and psi_max (the highest of the five)")
 COE_COLS = "month, bidding_no, vehicle_class, quota, bids_success, bids_received and premium (S$)"
 
 LABS = {
+    "1": dict(title="How bad will the haze get next week?", unit="PSI", data="psi_hourly.csv", kind="week",
+              week=("2026-10-26", "2026-11-01"), cols=PSI_COLS,
+              ask="The highest 24-hour PSI reading in any region of Singapore during the target week.",
+              baseline_says="the highest reading in the last seven days"),
     "2": dict(title="How much rain next week?", unit="mm", data="rain_daily.csv", kind="week",
               week=("2026-11-02", "2026-11-08"), cols=RAIN_COLS,
               ask="Singapore's island-average rainfall in mm, summed over the target week.",
@@ -47,6 +55,14 @@ LABS = {
               baseline_says="the weekday with the most rain on average over the last nine weeks"),
 }
 STARTERS = {
+    "1": '''import pandas as pd
+
+def predict(history):
+    # the baseline: the highest reading in the last seven days
+    last_week = history[history["timestamp"] > history["timestamp"].max() - pd.Timedelta(days=7)]
+    print("highest PSI each day:", last_week.groupby(last_week["timestamp"].dt.date)["psi_max"].max().tolist())
+    return float(last_week["psi_max"].max())
+''',
     "2": '''def predict(history):
     # the baseline: next week will be like last week
     last_week = history["rain_mm_mean"].tail(7)
@@ -102,7 +118,7 @@ for _q in LABS.values():
 
 def load(lab, csv_file):
     q = LABS[lab]
-    if q["data"] == "taxi_hourly.csv":
+    if q["data"] in HOURLY:
         df = pd.read_csv(csv_file, parse_dates=["timestamp"])
     elif q["data"] == "rain_daily.csv":
         df = pd.read_csv(csv_file, parse_dates=["date"])
@@ -133,14 +149,14 @@ def history(lab, df, target):
         month, no = target
         key = df["month"] + "-" + df["bidding_no"].astype(str)
         return df[key < f"{month}-{no}"].reset_index(drop=True)
-    if q["data"] == "taxi_hourly.csv":
+    if q["data"] in HOURLY:
         return df[df["timestamp"] < _t(target)].reset_index(drop=True)
     return df[df["date"] < pd.Timestamp(target)].reset_index(drop=True)
 
 
 def _week_rows(lab, df, start):
     q = LABS[lab]
-    if q["data"] == "taxi_hourly.csv":
+    if q["data"] in HOURLY:
         return df[(df["timestamp"] >= _t(start)) & (df["timestamp"] < _t(start) + pd.Timedelta(days=7))]
     return df[(df["date"] >= pd.Timestamp(start)) & (df["date"] < pd.Timestamp(start) + pd.Timedelta(days=7))]
 
@@ -176,10 +192,14 @@ def answer(lab, df, target):
         return _reading(df, pd.Timestamp(target) + pd.Timedelta(days=4), 18)
     if lab == "5":
         return float(w["taxi_count"].max()) if len(w) >= 150 else None
+    if lab == "1":
+        return float(w["psi_max"].max()) if len(w) >= 150 else None
 
 
 def baseline(lab, hist):
     """The simple rule's number, from the history alone."""
+    if lab == "1":
+        return float(hist[hist["timestamp"] > hist["timestamp"].max() - pd.Timedelta(days=7)]["psi_max"].max())
     if lab == "2":
         return float(hist["rain_mm_mean"].tail(7).sum())
     if lab == "3":
