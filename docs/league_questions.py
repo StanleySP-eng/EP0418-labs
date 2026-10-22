@@ -119,7 +119,9 @@ for _q in LABS.values():
 def load(lab, csv_file):
     q = LABS[lab]
     if q["data"] in HOURLY:
-        df = pd.read_csv(csv_file, parse_dates=["timestamp"])
+        # an explicit format: the browser page parses this ten times faster than parse_dates
+        df = pd.read_csv(csv_file)
+        df["timestamp"] = pd.to_datetime(df["timestamp"], format="%Y-%m-%d %H:%M:%S%z")
     elif q["data"] == "rain_daily.csv":
         df = pd.read_csv(csv_file, parse_dates=["date"])
     else:
