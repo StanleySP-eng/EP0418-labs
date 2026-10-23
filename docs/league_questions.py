@@ -143,7 +143,7 @@ My idea: {idea}
 The contest runs the function automatically, so follow these rules exactly:
 1. Name it predict, with exactly one input called history:  def predict(history):
 2. history is a pandas DataFrame that the contest passes in, oldest row first. Its column names are exactly: {names}. What they hold: {q['cols']}.{data}
-3. Do not read any file and do not ask for input. All the data is already in history.
+3. Do not read any file and do not ask for input. All the data is already in history. If I attach a data file, look at it only to choose the idea; the function must still take everything from history.
 4. Return one number with return float(...). Not a list, a table, text, None or NaN.
 5. Use only pandas, numpy and the Python standard library, and finish in under 30 seconds.
 6. Give only the import lines and the function: no example data, no test code, nothing that calls predict.
