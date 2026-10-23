@@ -116,6 +116,41 @@ for _q in LABS.values():
     _q.setdefault("close", _q["week"][0] if "week" in _q else None)   # entries close when the week starts
 
 
+def any_ai_prompt(lab, idea="[write your idea here in a few words, or delete this line]"):
+    """A prompt for any AI outside Colab (ChatGPT, Claude, Copilot): it cannot see the notebook,
+    so every rule the league checks is spelled out. Shown on the league page and in the labs."""
+    q = LABS[lab]
+    names = {"psi_hourly.csv": "timestamp, psi_north, psi_south, psi_east, psi_west, psi_central, psi_max",
+             "taxi_hourly.csv": "timestamp, taxi_count",
+             "rain_daily.csv": "date, rain_mm_mean, rain_mm_max, stations_reporting",
+             "coe.csv": "month, bidding_no, vehicle_class, quota, bids_success, bids_received, premium"}[q["data"]]
+    when = ("the first COE bidding exercise after entries close" if q["kind"] == "coe"
+            else f"the week of Monday {q['week'][0]} to Sunday {q['week'][1]}")
+    if q["data"] in HOURLY:
+        data = (" The timestamp column is timezone-aware (Asia/Singapore): compare it only with "
+                "timezone-aware times, for example pd.Timestamp(\"2026-10-26\", tz=\"Asia/Singapore\").")
+    elif q["data"] == "rain_daily.csv":
+        data = " The date column is a pandas datetime, one row per day, with no time zone."
+    else:
+        data = (" month is text such as \"2026-07\", there are two exercises a month (bidding_no 1 and 2), "
+                "and vehicle_class holds text such as \"Category A\" (every category is in the table).")
+    return f"""I am entering a prediction contest. Write one Python function for it.
+
+The question: {q['ask']} The target is {when}.
+The simple rule to beat: {q['baseline_says']}.
+My idea: {idea}
+
+The contest runs the function automatically, so follow these rules exactly:
+1. Name it predict, with exactly one input called history:  def predict(history):
+2. history is a pandas DataFrame that the contest passes in, oldest row first. Its column names are exactly: {names}. What they hold: {q['cols']}.{data}
+3. Do not read any file and do not ask for input. All the data is already in history.
+4. Return one number with return float(...). Not a list, a table, text, None or NaN.
+5. Use only pandas, numpy and the Python standard library, and finish in under 30 seconds.
+6. Give only the import lines and the function: no example data, no test code, nothing that calls predict.
+
+After the code, explain the idea in one sentence."""
+
+
 def load(lab, csv_file):
     q = LABS[lab]
     if q["data"] in HOURLY:
