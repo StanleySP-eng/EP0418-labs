@@ -1,0 +1,208 @@
+{
+ "lab": "1",
+ "title": "How bad will the haze get next week?",
+ "close": "2026-10-26",
+ "target": "2026-10-26",
+ "history_rows": 15911,
+ "baseline": 161.0,
+ "entries": [
+  {
+   "name": "Addie",
+   "submitted": "2026-10-25 00:38",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "Arya More",
+   "submitted": "2026-10-25 20:59",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "Enzo",
+   "submitted": "2026-10-23 17:44",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "fawaz",
+   "submitted": "2026-10-23 15:23",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "haajurudeene",
+   "submitted": "2026-10-23 15:31",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "hayden",
+   "submitted": "2026-10-23 15:47",
+   "status": "ok",
+   "value": 187.5
+  },
+  {
+   "name": "Ilhan",
+   "submitted": "2026-10-25 11:36",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "Jerrell Goh Jing Rui",
+   "submitted": "2026-10-23 15:44",
+   "status": "ok",
+   "value": 79.35
+  },
+  {
+   "name": "Johnson Lim Zhi Long",
+   "submitted": "2026-10-23 15:47",
+   "status": "ok",
+   "value": 173.375
+  },
+  {
+   "name": "Julia Choa Xin Yue",
+   "submitted": "2026-10-22 21:35",
+   "status": "ok",
+   "value": 229.35
+  },
+  {
+   "name": "jun fu",
+   "submitted": "2026-10-25 15:03",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "jyoung",
+   "submitted": "2026-10-23 15:38",
+   "status": "ok",
+   "value": 130.298
+  },
+  {
+   "name": "KAELAN CHIUH TING JEE",
+   "submitted": "2026-10-24 10:54",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "Kevin",
+   "submitted": "2026-10-23 11:19",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "Kieran Aw xu rui",
+   "submitted": "2026-10-23 15:40",
+   "status": "ok",
+   "value": 152.95
+  },
+  {
+   "name": "Ko Shao Hong",
+   "submitted": "2026-10-23 19:07",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "Lim Xu Kang",
+   "submitted": "2026-10-23 12:56",
+   "status": "ok",
+   "value": 154.0
+  },
+  {
+   "name": "Loh Hao Chen Jayven",
+   "submitted": "2026-10-25 23:53",
+   "status": "ok",
+   "value": 146.3
+  },
+  {
+   "name": "Matthew",
+   "submitted": "2026-10-23 15:57",
+   "status": "ok",
+   "value": 140.714
+  },
+  {
+   "name": "Max Tum",
+   "submitted": "2026-10-23 11:26",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "MUSTAFA MEHREEN",
+   "submitted": "2026-10-23 11:17",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "Nathan",
+   "submitted": "2026-10-25 19:40",
+   "status": "ok",
+   "value": 76.5
+  },
+  {
+   "name": "Sara",
+   "submitted": "2026-10-23 11:23",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "Sathish Sanjith Nithish",
+   "submitted": "2026-10-23 15:40",
+   "status": "ok",
+   "value": 183.5
+  },
+  {
+   "name": "Soh Kai Xun",
+   "submitted": "2026-10-23 11:20",
+   "status": "ok",
+   "value": 225.563
+  },
+  {
+   "name": "Stanley",
+   "submitted": "2026-10-22 22:17",
+   "status": "ok",
+   "value": 146.0
+  },
+  {
+   "name": "Stanley hello",
+   "submitted": "2026-10-23 16:30",
+   "status": "ok",
+   "value": 150.64
+  },
+  {
+   "name": "Thomas Lee",
+   "submitted": "2026-10-25 14:09",
+   "status": "ok",
+   "value": 182.243
+  },
+  {
+   "name": "Thuzar Thiri Khit",
+   "submitted": "2026-10-23 14:52",
+   "status": "ok",
+   "value": 174.25
+  },
+  {
+   "name": "vivienne",
+   "submitted": "2026-10-23 15:40",
+   "status": "ok",
+   "value": 174.75
+  },
+  {
+   "name": "xena lai",
+   "submitted": "2026-10-24 16:20",
+   "status": "ok",
+   "value": 161.0
+  },
+  {
+   "name": "Yew Ming Xuan, Ethan",
+   "submitted": "2026-10-23 15:38",
+   "status": "ok",
+   "value": 154.0
+  },
+  {
+   "name": "Zachery Swee Zhi Wen",
+   "submitted": "2026-10-23 15:37",
+   "status": "ok",
+   "value": 149.4
+  }
+ ]
+}
