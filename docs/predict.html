@@ -359,7 +359,7 @@ function showCase(r, c){
   const head = h => "<tr>" + h.map(x => `<th style="text-align:left;padding:6px 10px;border-bottom:2px solid var(--rule);color:var(--muted)">${x}</th>`).join("") + "</tr>";
   let rows;
   if (res) {
-    $("boardnote").textContent = `Settled: the real answer was ${fmt(res.actual)}. The simple rule said ${fmt(res.baseline)} and missed by ${fmtd(res.baseline_off_by)}.`;
+    $("boardnote").textContent = `Settled: the real answer was ${fmt(res.actual)}. The simple rule said ${fmt(res.baseline)} and missed by ${fmtd(res.baseline_off_by)}.` + (res.note ? " " + res.note : "");
     rows = head(["#", "Name", "Frozen number", "Missed by"]) + res.ranked.map((e, i) =>
       "<tr>" + cell(i + 1) + cell(esc(e.name), i === 0) + cell(fmt(e.value)) + cell(fmtd(e.off_by)) + "</tr>").join("") +
       res.no_number.map(e => "<tr>" + cell("–") + cell(esc(e.name)) + cell(esc(e.status)) + cell("") + "</tr>").join("");
