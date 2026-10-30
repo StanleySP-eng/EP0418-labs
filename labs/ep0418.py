@@ -736,7 +736,12 @@ class _Show:
             fig, ax = self._ax()
             ax.plot(s.index, s.values, color=self.INK, lw=0.8)
             if span is not None:
-                ax.axvspan(pd.Timestamp(span[0]), pd.Timestamp(span[1]), color=self.LIGHT, zorder=0)
+                a, b = pd.Timestamp(span[0]), pd.Timestamp(span[1])
+                tz = getattr(s.index, "tz", None)
+                if tz is not None:                                    # a plain "02:00" means 02:00 in the data's own zone
+                    a = a.tz_localize(tz) if a.tzinfo is None else a
+                    b = b.tz_localize(tz) if b.tzinfo is None else b
+                ax.axvspan(a, b, color=self.LIGHT, zorder=0)
             if hline is not None:
                 ax.axhline(hline, color=self.GREY, lw=0.8, ls="--")
             self._done(ax, title, ylabel or getattr(s, "name", None))
