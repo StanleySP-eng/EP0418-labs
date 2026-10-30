@@ -729,6 +729,32 @@ class _Show:
             ax.set_ylabel(ylabel)
         plt.tight_layout(); plt.show()
 
+    def tree(self, obj, name="raw"):
+        """The shape of JSON data: every box and list, one example item per list, never all of it."""
+        def short(v):
+            return repr(v) if not isinstance(v, (dict, list)) else ""
+
+        def walk(o, label, pad):
+            if isinstance(o, dict):
+                print(f"{pad}{label}  (a box with {len(o)} named parts)")
+                for k, v in o.items():
+                    if isinstance(v, (dict, list)):
+                        walk(v, f"[\"{k}\"]", pad + "    ")
+                    else:
+                        print(f"{pad}    [\"{k}\"]  {short(v)}")
+            elif isinstance(o, list):
+                print(f"{pad}{label}  (a list of {len(o)})")
+                if o:
+                    walk(o[0], "[0]", pad + "    ")
+                    if len(o) > 1:
+                        print(f"{pad}    ... {len(o) - 1} more like [0]")
+            else:
+                print(f"{pad}{label}  {short(o)}")
+        try:
+            walk(obj, name, "")
+        except Exception as e:                                        # noqa: BLE001
+            print(f"show.tree could not draw this: {e}")
+
     def series(self, obj, col=None, title=None, ylabel=None, span=None, hline=None):
         """One series over time. span=(start, end) shades a period; hline draws a level."""
         try:
