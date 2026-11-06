@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EP0418 Prediction League</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Big+Shoulders+Display:wght@800&display=swap">
 <style>
 /* Plain course-notes look: white page, serif text, one blue accent, red/green for fail/pass. */
 :root{--bg:#fff;--fg:#1d1d1f;--muted:#5d6470;--rule:#d9dce1;--panel:#f6f7f9;--accent:#1f4e8c;--good:#1b7a3a;--bad:#b3261e;--code-bg:#fbfbfc;
@@ -54,6 +54,38 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sent{border:1.5px solid var(--rule);border-radius:4px;padding:12px 14px;margin-top:14px;font:.92rem var(--sans)}
 details{font:.92rem var(--sans);margin-top:18px;color:var(--muted)}details summary{cursor:pointer;color:var(--fg)}
 details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;border-radius:4px;overflow-x:auto;color:var(--fg)}
+/* Results board, shown on this page once the lab's round has closed: the final reading first, then the podium, then every miss to scale. */
+#board{--gold:#b8901c;--silver:#8a96a3;--bronze:#a3622f;--track:#eef0f3;--miss:#a3abb6;--display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  border:1px solid var(--rule);border-radius:12px;padding:20px;margin:6px 0 26px;display:flex;flex-direction:column;gap:18px;background:var(--bg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #board{--gold:#e2b93b;--silver:#b4bfcb;--bronze:#d08a52;--track:#1e2229;--miss:#5d6670}}
+:root[data-theme="dark"] #board{--gold:#e2b93b;--silver:#b4bfcb;--bronze:#d08a52;--track:#1e2229;--miss:#5d6670}
+#board .bhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px}
+#board .bhead h2{font:800 2rem/1 var(--display);text-transform:uppercase;letter-spacing:.01em;margin:0}
+#board .tag{font:600 .75rem/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+#board .tag.settled{color:var(--good)} #board .tag.waiting{color:var(--accent)}
+#board .final{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:6px 20px;border-top:2px solid var(--fg);border-bottom:1px solid var(--rule);padding:14px 0}
+#board .final .lbl{font:600 .78rem var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);grid-column:1/-1}
+@media (max-width:560px){#board .final{grid-template-columns:minmax(0,1fr)}}
+#board .final b{font:800 clamp(3.2rem,9vw,5rem)/.95 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+#board .final span{font:.95rem var(--sans);color:var(--muted);max-width:52ch}
+#board .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#board .stat{background:var(--track);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+#board .stat b{font:800 1.8rem/1 var(--display);font-variant-numeric:tabular-nums}
+#board .stat span{font:.8rem var(--sans);color:var(--muted)}
+#board .podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+#board .step{border-radius:12px 12px 4px 4px;padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0;border-top:5px solid var(--c);background:var(--track);font-family:var(--sans)}
+#board .p1{min-height:180px;--c:var(--gold)} #board .p2{min-height:152px;--c:var(--silver)} #board .p3{min-height:134px;--c:var(--bronze)}
+#board .place{font:800 2.6rem/1 var(--display);color:var(--c)}
+#board .who{font-weight:600;overflow-wrap:anywhere}
+#board .num{font:.85rem var(--mono);color:var(--muted)} #board .off{font:.82rem var(--mono);color:var(--good)}
+@media (max-width:560px){#board .podium,#board .stats{grid-template-columns:minmax(0,1fr)}#board .step{min-height:0!important}#board .p1{order:-1}}
+#board .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:.82rem var(--sans);color:var(--muted)}
+#board .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+#board .chart{overflow-x:auto} #board svg{display:block;width:100%;height:auto;min-width:540px}
+#board svg text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+#board .note{font:.88rem var(--sans);color:var(--muted);border-left:3px solid var(--rule);padding-left:12px;margin:0}
+#board table{border-collapse:collapse;width:100%;font:.92rem var(--sans);font-variant-numeric:tabular-nums;margin-top:8px}
+#board th,#board td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule)} #board th{color:var(--muted);font-weight:600}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body><div class="wrap">
 
@@ -104,12 +136,7 @@ details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;borde
 </section>
 </div>
 
-<section id="board" aria-label="League results" hidden>
-  <h2 style="font-size:1.3rem;margin:30px 0 6px">Results</h2>
-  <p class="meta"><a href="results.html">Every closed round, with podiums: the Hall of Results</a></p>
-  <p class="meta" id="boardnote"></p>
-  <div style="overflow-x:auto"><table id="boardtable" style="border-collapse:collapse;width:100%;font:.95rem var(--sans);font-variant-numeric:tabular-nums"></table></div>
-</section>
+<section id="board" aria-label="League results" hidden></section>
 
 <details><summary>What counts as one number? What if my code fetches other data?</summary>
 <p>Return a plain number: <code>return 31.4</code>, or <code>return float(x)</code> when <code>x</code> comes out of pandas. A list, a table or <code>None</code> fails the test.</p>
@@ -354,26 +381,78 @@ function showCase(r, c){
     <div class="field"><div class="k">Stdout (what your print lines showed)</div><div class="box ${r.stdout ? "" : "empty"}">${r.stdout ? esc(r.stdout) : "nothing printed"}</div></div>${nums}</div>`;
 }
 
-(async () => {                      // after the close: the frozen numbers, then the ranking
+(async () => {                      // after the close: the final reading, the podium and every miss, on this page
   const get = u => fetch(u, {cache: "no-store"}).then(r => r.ok ? r.json() : null).catch(() => null);
   const res = await get(`data/results_lab${LAB}.json`), fz = res || await get(`data/frozen_lab${LAB}.json`);
   if (!fz) return;
-  const cell = (t, b) => `<td style="padding:6px 10px;border-bottom:1px solid var(--rule)${b ? ";font-weight:600" : ""}">${t}</td>`;
-  const head = h => "<tr>" + h.map(x => `<th style="text-align:left;padding:6px 10px;border-bottom:2px solid var(--rule);color:var(--muted)">${x}</th>`).join("") + "</tr>";
-  let rows;
-  if (res) {
-    $("boardnote").textContent = `Settled: the real answer was ${fmt(res.actual)}. The simple rule said ${fmt(res.baseline)} and missed by ${fmtd(res.baseline_off_by)}.` + (res.note ? " " + res.note : "");
-    rows = head(["#", "Name", "Frozen number", "Missed by"]) + res.ranked.map((e, i) =>
-      "<tr>" + cell(i + 1) + cell(esc(e.name), i === 0) + cell(fmt(e.value)) + cell(fmtd(e.off_by)) + "</tr>").join("") +
-      res.no_number.map(e => "<tr>" + cell("–") + cell(esc(e.name)) + cell(esc(e.status)) + cell("") + "</tr>").join("");
-  } else {
-    $("boardnote").textContent = fz.lock === "submit"
-      ? "Entries closed. Each entry is the number its code gave on this page when it was submitted, checked by running it again on the same data. They stay fixed until reality settles them."
-      : `Entries closed. Each entry ran once on the data up to the close (${fz.history_rows} rows); these numbers are frozen until reality settles them.`;
-    rows = head(["Name", fz.lock === "submit" ? "Entry" : "Frozen number", "Submitted"]) + fz.entries.map(e =>
-      "<tr>" + cell(esc(e.name)) + cell(e.status === "ok" ? fmt(e.value) : esc(e.status)) + cell(esc(e.submitted)) + "</tr>").join("");
+  const HIDE = new Set(["stanley", "stanley hello"]);     // the module leader's test entries: kept in the data, not shown
+  const shown = l => (l || []).filter(e => !HIDE.has(e.name.trim().toLowerCase()));
+  const css = v => getComputedStyle($("board")).getPropertyValue(v).trim();
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (tag, a, parent, text) => { const e = document.createElementNS(SVG, tag); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; parent.appendChild(e); return e; };
+  const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const day = iso => { const d = new Date(iso + "T00:00:00Z"); return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
+  const week = Q.week ? `the week of ${day(Q.week[0])} to ${day(Q.week[1])}` : "the exercise";
+  const table = (h, rows) => `<details><summary>Every entry, as a table</summary><div class="chart"><table><thead><tr>${h.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></details>`;
+  const board = $("board");
+  const unit = s => /[a-z$]/i.test(s) || Q.unit.startsWith("(") ? s : s + " " + Q.unit;   // fmt leaves PSI bare
+  const F = v => unit(fmt(v)), FD = v => unit(fmtd(v));
+  function draw() {
+    if (res) {
+      const ranked = shown(res.ranked), none = shown(res.no_number), beat = ranked.filter(e => e.off_by < res.baseline_off_by).length, top = ranked.slice(0, 3);
+      const podium = [1, 0, 2].map(i => top[i] ? `<div class="step p${i + 1}"><div class="place">${i + 1}</div><div class="who">${esc(top[i].name)}</div><div class="num">said ${esc(F(top[i].value))}</div><div class="off">missed by ${esc(FD(top[i].off_by))}</div></div>` : "<div></div>").join("");
+      board.innerHTML = `<div class="bhead"><h2>Results</h2><span class="tag settled">Settled</span></div>
+        <div class="final"><span class="lbl">The final reading</span><b>${esc(F(res.actual))}</b><span>${esc(Q.ask)} That is what really happened in ${esc(week)}.</span></div>
+        <div class="stats"><div class="stat"><b>${esc(F(res.baseline))}</b><span>the simple rule said, missing by ${esc(FD(res.baseline_off_by))}</span></div>
+          <div class="stat"><b>${ranked.length}</b><span>entries</span></div><div class="stat"><b>${beat}</b><span>beat the simple rule</span></div></div>
+        <div class="podium" aria-label="Top three">${podium}</div>
+        <div class="legend"><span><i style="background:var(--good)"></i>closer than the simple rule</span><span><i style="background:var(--miss)"></i>further than the simple rule</span><span><i style="background:var(--gold)"></i>podium</span></div>
+        <div class="chart"><svg role="img" aria-label="How far each entry missed the final reading, closest first"></svg></div>
+        ${res.note ? `<p class="note">${esc(res.note)}</p>` : ""}
+        ${table(["#", "Name", "Said", "Missed by", "Submitted"], ranked.map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.name)}</td><td>${esc(F(e.value))}</td><td>${esc(FD(e.off_by))}</td><td>${esc(e.submitted)}</td></tr>`).join("") +
+            none.map(e => `<tr><td>–</td><td>${esc(e.name)}</td><td colspan="2">${esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
+      const svg = board.querySelector("svg"), W = 860, L = 190, R = 90, rh = 22, T = 30, H = T + ranked.length * rh + 30;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      const max = Math.max(res.baseline_off_by, ...ranked.map(e => e.off_by)) * 1.05 || 1, x = v => L + v / max * (W - L - R);
+      for (const f of [0, .25, .5, .75, 1]) { el("line", {x1: x(max * f), x2: x(max * f), y1: T - 6, y2: H - 24, stroke: css("--rule")}, svg);
+        el("text", {x: x(max * f), y: H - 8, "text-anchor": "middle"}, svg, FD(max * f)); }
+      el("text", {x: L, y: 14}, svg, "missed the final reading by →");
+      ranked.forEach((e, i) => { const y = T + i * rh, medal = ["--gold", "--silver", "--bronze"][i];
+        el("text", {x: L - 10, y: y + 15, "text-anchor": "end", style: `fill:${css(medal ? "--fg" : "--muted")};font-weight:${medal ? 600 : 400}`}, svg, `${i + 1}. ${e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name}`);
+        el("rect", {x: L, y: y + 4, width: Math.max(2, x(e.off_by) - L), height: rh - 8, rx: 3, fill: css(medal || (e.off_by < res.baseline_off_by ? "--good" : "--miss"))}, svg);
+        el("text", {x: x(e.off_by) + 6, y: y + 15, style: "font-family:" + css("--mono")}, svg, FD(e.off_by)); });
+      const bx = x(res.baseline_off_by);
+      el("line", {x1: bx, x2: bx, y1: T - 10, y2: H - 24, stroke: css("--accent"), "stroke-width": 2, "stroke-dasharray": "5 4"}, svg);
+      el("text", {x: bx + 6, y: T - 8, style: `fill:${css("--accent")};font-weight:600`}, svg, "simple rule missed by " + FD(res.baseline_off_by));
+    } else {
+      const all = shown(fz.entries), ok = all.filter(e => e.status === "ok");
+      const when = Q.kind === "coe" ? "when LTA publishes the result" : `after ${day(Q.week[1])}`;
+      const rule = fz.lock === "submit" ? "Each entry is the number its code gave on this page when it was submitted, checked by running it again on the same data."
+                                        : `Each entry ran once on the data up to the close (${fz.history_rows} rows); the numbers are frozen.`;
+      board.innerHTML = `<div class="bhead"><h2>Results</h2><span class="tag waiting">Closed · settles ${esc(when)}</span></div>
+        <div class="final"><span class="lbl">The final reading</span><b>?</b><span>Not in yet. It is taken from the real data ${esc(when)}, then the podium appears here.</span></div>
+        <div class="stats"><div class="stat"><b>${esc(F(fz.baseline))}</b><span>the simple rule says</span></div><div class="stat"><b>${ok.length}</b><span>entries</span></div>
+          <div class="stat"><b>${esc(F(ok.reduce((a, e) => a + e.value, 0) / (ok.length || 1)))}</b><span>the class average</span></div></div>
+        <div class="chart"><svg role="img" aria-label="Every entry on one line, with the simple rule marked"></svg></div>
+        <p class="note">${esc(rule)}</p>
+        ${table(["Name", "Entry", "Submitted"], all.map(e => `<tr><td>${esc(e.name)}</td><td>${e.status === "ok" ? esc(F(e.value)) : esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
+      const svg = board.querySelector("svg"), W = 860, L = 30, R = 30, H = 120;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      const vals = ok.map(e => e.value).concat(fz.baseline), lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .06 || 1;
+      const x = v => L + (v - lo + pad) / (hi - lo + 2 * pad) * (W - L - R);
+      el("line", {x1: L, x2: W - R, y1: 70, y2: 70, stroke: css("--rule"), "stroke-width": 2}, svg);
+      for (let k = 0; k <= 4; k++) { const v = lo - pad + k / 4 * (hi - lo + 2 * pad); el("text", {x: x(v), y: 108, "text-anchor": "middle"}, svg, F(v)); }
+      const stack = {};
+      ok.slice().sort((a, b) => a.value - b.value).forEach(e => { const k = Math.round(x(e.value) / 9); stack[k] = (stack[k] || 0) + 1;
+        el("title", {}, el("circle", {cx: x(e.value), cy: 70 - (stack[k] - 1) * 11, r: 5, fill: css("--fg"), "fill-opacity": .75}, svg), `${e.name}: ${F(e.value)}`); });
+      const bx = x(fz.baseline);
+      el("line", {x1: bx, x2: bx, y1: 8, y2: 84, stroke: css("--accent"), "stroke-width": 2, "stroke-dasharray": "5 4"}, svg);
+      el("text", {x: bx + 6, y: 18, style: `fill:${css("--accent")};font-weight:600`}, svg, "simple rule " + F(fz.baseline));
+    }
   }
-  $("boardtable").innerHTML = rows; $("board").hidden = false;
+  document.querySelector(".q").after(board);           // a closed round leads with its result
+  draw(); board.hidden = false;
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 })();
 const PSHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsqMuE2mROxNGyQb5e926p3pyWkoSjIBdGKCetxgdi1FAfDC_fzba2Gho29d1xtDs_3SPQncl2LVCu/pub?gid=981299993&single=true&output=csv";
 function parseCSV(t) {                        // quoted fields may hold commas and line breaks (the code column does)
