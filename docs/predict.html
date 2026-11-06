@@ -66,7 +66,7 @@ details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;borde
 #board .final{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:6px 20px;border-top:2px solid var(--fg);border-bottom:1px solid var(--rule);padding:14px 0}
 #board .final .lbl{font:600 .78rem var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);grid-column:1/-1}
 @media (max-width:560px){#board .final{grid-template-columns:minmax(0,1fr)}}
-#board .final b{font:800 clamp(3.2rem,9vw,5rem)/.95 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+#board .final b.big{font:800 clamp(3.2rem,9vw,5rem)/.95 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
 #board .final span{font:.95rem var(--sans);color:var(--muted);max-width:52ch}
 #board .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 #board .stat{background:var(--track);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -86,6 +86,30 @@ details pre{font:13px/1.5 var(--mono);background:var(--panel);padding:10px;borde
 #board .note{font:.88rem var(--sans);color:var(--muted);border-left:3px solid var(--rule);padding-left:12px;margin:0}
 #board table{border-collapse:collapse;width:100%;font:.92rem var(--sans);font-variant-numeric:tabular-nums;margin-top:8px}
 #board th,#board td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule)} #board th{color:var(--muted);font-weight:600}
+#board .me:empty{display:none}
+#board .hint{font:.9rem var(--sans);color:var(--muted);margin:0}
+#board .card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px 22px;align-items:center;padding:16px 18px;border-radius:12px;background:var(--track);border:2px solid var(--accent)}
+#board .card .lbl{display:block;font:600 .72rem var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#board .card .rank{display:block;font:800 3.4rem/1 var(--display);color:var(--accent)} #board .card .rank.sm{font-size:2.4rem}
+#board .card .of{font:.85rem var(--sans);color:var(--muted)}
+#board .card .pts{font:800 1.9rem/1 var(--display);color:var(--good)} #board .card .pts small{font:600 .8rem var(--sans);color:var(--muted)}
+#board .card p{margin:6px 0 8px;font:.92rem var(--sans)}
+#board .card-r{text-align:right} #board .card .lvl{display:block;font:800 1.9rem/1.05 var(--display);text-transform:uppercase}
+@media (max-width:640px){#board .card{grid-template-columns:minmax(0,1fr)}#board .card-r{text-align:left}}
+#board .badges{display:flex;flex-wrap:wrap;gap:6px}
+#board .badge{display:inline-block;font:700 .72rem/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:999px;border:1.5px solid var(--c,var(--rule));color:var(--c,var(--muted));vertical-align:middle;white-space:nowrap}
+#board .b-gold{--c:var(--gold)} #board .b-silver{--c:var(--silver)} #board .b-bronze{--c:var(--bronze)} #board .b-beat{--c:var(--good)} #board .b-bull{--c:var(--accent)} #board .b-every{--c:var(--accent);font-size:.62rem;padding:4px 7px}
+#board .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:3px;vertical-align:-1px}
+#board tr.you td{background:color-mix(in srgb,var(--accent) 14%,transparent);font-weight:600}
+#board .step.you{outline:3px solid var(--accent);outline-offset:2px}
+#board svg .hl{fill:transparent} #board svg g.you .hl{fill:color-mix(in srgb,var(--accent) 16%,transparent)}
+#board svg circle.you{fill:var(--accent);fill-opacity:1;r:7}
+#board .season summary{font:700 1rem var(--sans);color:var(--fg)}
+#board .rules{font:.85rem var(--sans);color:var(--muted);margin:10px 0 0;max-width:80ch}
+#board .countdown{display:block;margin-top:6px;color:var(--accent);font-weight:600}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+#board .podium.rise .step{animation:rise .7s both cubic-bezier(.2,.8,.2,1)} #board .podium.rise .p3{animation-delay:.15s} #board .podium.rise .p2{animation-delay:.3s} #board .podium.rise .p1{animation-delay:.5s}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body><div class="wrap">
 
@@ -381,35 +405,123 @@ function showCase(r, c){
     <div class="field"><div class="k">Stdout (what your print lines showed)</div><div class="box ${r.stdout ? "" : "empty"}">${r.stdout ? esc(r.stdout) : "nothing printed"}</div></div>${nums}</div>`;
 }
 
-(async () => {                      // after the close: the final reading, the podium and every miss, on this page
+(async () => {                      // after the close: the reveal, your player card, the podium, every miss, the season
   const get = u => fetch(u, {cache: "no-store"}).then(r => r.ok ? r.json() : null).catch(() => null);
   const res = await get(`data/results_lab${LAB}.json`), fz = res || await get(`data/frozen_lab${LAB}.json`);
   if (!fz) return;
   const HIDE = new Set(["stanley", "stanley hello"]);     // the module leader's test entries: kept in the data, not shown
-  const shown = l => (l || []).filter(e => !HIDE.has(e.name.trim().toLowerCase()));
+  const key = s => String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
+  const shown = l => (l || []).filter(e => !HIDE.has(key(e.name)));
   const css = v => getComputedStyle($("board")).getPropertyValue(v).trim();
   const SVG = "http://www.w3.org/2000/svg";
   const el = (tag, a, parent, text) => { const e = document.createElementNS(SVG, tag); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; parent.appendChild(e); return e; };
   const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const day = iso => { const d = new Date(iso + "T00:00:00Z"); return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
   const week = Q.week ? `the week of ${day(Q.week[0])} to ${day(Q.week[1])}` : "the exercise";
-  const table = (h, rows) => `<details><summary>Every entry, as a table</summary><div class="chart"><table><thead><tr>${h.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></details>`;
-  const board = $("board");
   const unit = s => /[a-z$]/i.test(s) || Q.unit.startsWith("(") ? s : s + " " + Q.unit;   // fmt leaves PSI bare
   const F = v => unit(fmt(v)), FD = v => unit(fmtd(v));
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const board = $("board");
+
+  // ---- the game: points per settled round, badges, levels (the rules are printed on the page)
+  const LEVELS = [[0, "Rookie"], [150, "Forecaster"], [400, "Analyst"], [800, "Oracle"]];
+  const level = p => LEVELS.filter(l => p >= l[0]).pop()[1];
+  function score(r) {                              // one settled round -> {name key: {points, rank, badges, ...}}
+    const ranked = shown(r.ranked), n = ranked.length, out = {};
+    ranked.forEach((e, i) => {
+      const beat = e.off_by < r.baseline_off_by, bull = r.actual && e.off_by <= Math.abs(r.actual) * 0.05;
+      const badges = [];
+      if (i < 3) badges.push(["gold", "silver", "bronze"][i]);
+      if (beat) badges.push("beat");
+      if (bull) badges.push("bull");
+      out[key(e.name)] = {name: e.name, rank: i + 1, of: n, value: e.value, off: e.off_by, beat, bull, badges,
+        points: Math.max(10, Math.round(100 * (n - i) / n)) + (beat ? 50 : 0) + (bull ? 25 : 0)};
+    });
+    shown(r.no_number).forEach(e => { out[key(e.name)] = {name: e.name, rank: null, of: n, badges: [], points: 5, status: e.status}; });
+    return out;
+  }
+  const BADGE = {gold: ["1st", "Closest of all"], silver: ["2nd", "Second closest"], bronze: ["3rd", "Third closest"],
+                 beat: ["Beat the rule", "Closer than the simple rule"], bull: ["Bullseye", "Within 5% of the final reading"],
+                 every: ["Every round", "Entered every round that has settled"]};
+  const badge = b => `<span class="badge b-${b}" title="${esc(BADGE[b][1])}">${esc(BADGE[b][0])}</span>`;
+
+  const settled = [];                               // every settled round, for the season table
+  for (const lab of Object.keys(META)) {
+    const r = lab === LAB && res ? res : await get(`data/results_lab${lab}.json`);
+    if (r) settled.push([lab, score(r)]);
+  }
+  function season() {
+    const P = {};
+    for (const [lab, s] of settled) for (const [k, p] of Object.entries(s)) {
+      const q = P[k] || (P[k] = {name: p.name, points: 0, rounds: 0, medals: [0, 0, 0], beat: 0});
+      q.points += p.points; q.rounds++; if (p.beat) q.beat++;
+      if (p.rank && p.rank <= 3) q.medals[p.rank - 1]++;
+    }
+    for (const q of Object.values(P)) q.every = q.rounds === settled.length && settled.length > 1;
+    return Object.values(P).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+  }
+
+  const count = (node, to, text) => {               // the final reading counts up once, then stays
+    if (calm) { node.textContent = text(to); return; }
+    const t0 = performance.now(), dur = 1400;
+    const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      node.textContent = text(to * e); if (k < 1) requestAnimationFrame(step); else node.textContent = text(to); };
+    requestAnimationFrame(step);
+  };
+  const table = (h, rows) => `<details><summary>Every entry, as a table</summary><div class="chart"><table><thead><tr>${h.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></details>`;
+
+  function myCard() {
+    const me = key(nameEl.value), box = board.querySelector(".me");
+    if (!box) return;
+    if (!me) { box.innerHTML = `<p class="hint">Type your name in the <b>Your name</b> box below to see your player card.</p>`; return; }
+    const table = season(), row = table.find(p => key(p.name) === me);
+    if (res) {
+      const s = settled.find(([l]) => l === LAB)[1][me];
+      if (!s) { box.innerHTML = `<p class="hint">No entry under <b>${esc(nameEl.value)}</b> in this round. Use the name you entered with.</p>`; return; }
+      const lvl = level(row ? row.points : 0), place = row ? table.indexOf(row) + 1 : "–";
+      box.innerHTML = `<div class="card"><div class="card-l"><span class="lbl">Your result</span>
+          <b class="rank">${s.rank ? "#" + s.rank : "–"}</b><span class="of">${s.rank ? `of ${s.of}` : esc(s.status)}</span></div>
+        <div class="card-m"><div class="pts">+${s.points} <small>points</small></div>
+          <p>${s.rank ? `You said ${esc(F(s.value))} and missed by ${esc(FD(s.off))}. The simple rule missed by ${esc(FD(res.baseline_off_by))}.` : "Your code gave no number, so you get the points for taking part."}</p>
+          <div class="badges">${s.badges.map(badge).join("") || '<span class="badge b-none">No badge this round</span>'}</div></div>
+        <div class="card-r"><span class="lbl">Season</span><b class="lvl">${esc(lvl)}</b><span class="of">${row ? row.points : 0} points · #${place} of ${table.length}</span></div></div>`;
+    } else {
+      const e = shown(fz.entries).find(x => key(x.name) === me);
+      box.innerHTML = e ? `<div class="card"><div class="card-l"><span class="lbl">Your locked number</span><b class="rank sm">${e.status === "ok" ? esc(F(e.value)) : "–"}</b>
+          <span class="of">${e.status === "ok" ? (e.value > fz.baseline ? "above" : e.value < fz.baseline ? "below" : "level with") + " the simple rule" : esc(e.status)}</span></div>
+          <div class="card-m"><p>Locked in at ${esc(e.submitted)}. When the final reading comes in, the closest number wins. Beat the simple rule for +50 points; land within 5% for a Bullseye.</p></div>
+          <div class="card-r"><span class="lbl">Season so far</span><b class="lvl">${esc(level(row ? row.points : 0))}</b><span class="of">${row ? row.points : 0} points</span></div></div>`
+        : `<p class="hint">No entry under <b>${esc(nameEl.value)}</b> in this round. Use the name you entered with.</p>`;
+    }
+    board.querySelectorAll("[data-name]").forEach(n => n.classList.toggle("you", n.dataset.name === me));
+  }
+
+  function seasonHTML() {
+    const t = season();
+    if (!t.length) return "";
+    return `<details class="season" open><summary>Season standings · ${settled.length} ${settled.length === 1 ? "round" : "rounds"} settled</summary>
+      <div class="chart"><table><thead><tr><th>#</th><th>Player</th><th>Level</th><th>Points</th><th>Medals</th><th>Beat the rule</th></tr></thead><tbody>
+      ${t.map((p, i) => `<tr data-name="${esc(key(p.name))}"><td>${i + 1}</td><td>${esc(p.name)}${p.every ? " " + badge("every") : ""}</td><td>${esc(level(p.points))}</td><td><b>${p.points}</b></td>
+        <td>${["gold", "silver", "bronze"].map((c, j) => `<span class="dot" style="background:var(--${c})"></span>`.repeat(p.medals[j])).join("") || "–"}</td><td>${p.beat} of ${p.rounds}</td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="rules"><b>How points work.</b> Each settled round: up to 100 points for how close you came (1st gets 100, the rest fewer in steps down the ranking, at least 10), +50 for beating the simple rule, +25 for a Bullseye (within 5% of the final reading). Code that gave no number still earns 5 for taking part. Levels: Forecaster at 150 points, Analyst at 400, Oracle at 800.</p></details>`;
+  }
+
   function draw() {
     if (res) {
       const ranked = shown(res.ranked), none = shown(res.no_number), beat = ranked.filter(e => e.off_by < res.baseline_off_by).length, top = ranked.slice(0, 3);
-      const podium = [1, 0, 2].map(i => top[i] ? `<div class="step p${i + 1}"><div class="place">${i + 1}</div><div class="who">${esc(top[i].name)}</div><div class="num">said ${esc(F(top[i].value))}</div><div class="off">missed by ${esc(FD(top[i].off_by))}</div></div>` : "<div></div>").join("");
+      const podium = [1, 0, 2].map(i => top[i] ? `<div class="step p${i + 1}" data-name="${esc(key(top[i].name))}"><div class="place">${i + 1}</div><div class="who">${esc(top[i].name)}</div><div class="num">said ${esc(F(top[i].value))}</div><div class="off">missed by ${esc(FD(top[i].off_by))}</div></div>` : "<div></div>").join("");
       board.innerHTML = `<div class="bhead"><h2>Results</h2><span class="tag settled">Settled</span></div>
-        <div class="final"><span class="lbl">The final reading</span><b>${esc(F(res.actual))}</b><span>${esc(Q.ask)} That is what really happened in ${esc(week)}.</span></div>
+        <div class="final"><span class="lbl">The final reading</span><b class="big">${esc(F(res.actual))}</b><span>${esc(Q.ask)} That is what really happened in ${esc(week)}.</span></div>
+        <div class="me"></div>
         <div class="stats"><div class="stat"><b>${esc(F(res.baseline))}</b><span>the simple rule said, missing by ${esc(FD(res.baseline_off_by))}</span></div>
-          <div class="stat"><b>${ranked.length}</b><span>entries</span></div><div class="stat"><b>${beat}</b><span>beat the simple rule</span></div></div>
-        <div class="podium" aria-label="Top three">${podium}</div>
+          <div class="stat"><b>${ranked.length}</b><span>players</span></div><div class="stat"><b>${beat}</b><span>beat the simple rule</span></div></div>
+        <div class="podium${calm ? "" : " rise"}" aria-label="Top three">${podium}</div>
         <div class="legend"><span><i style="background:var(--good)"></i>closer than the simple rule</span><span><i style="background:var(--miss)"></i>further than the simple rule</span><span><i style="background:var(--gold)"></i>podium</span></div>
         <div class="chart"><svg role="img" aria-label="How far each entry missed the final reading, closest first"></svg></div>
         ${res.note ? `<p class="note">${esc(res.note)}</p>` : ""}
-        ${table(["#", "Name", "Said", "Missed by", "Submitted"], ranked.map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.name)}</td><td>${esc(F(e.value))}</td><td>${esc(FD(e.off_by))}</td><td>${esc(e.submitted)}</td></tr>`).join("") +
+        ${seasonHTML()}
+        ${table(["#", "Name", "Said", "Missed by", "Submitted"], ranked.map((e, i) => `<tr data-name="${esc(key(e.name))}"><td>${i + 1}</td><td>${esc(e.name)}</td><td>${esc(F(e.value))}</td><td>${esc(FD(e.off_by))}</td><td>${esc(e.submitted)}</td></tr>`).join("") +
             none.map(e => `<tr><td>–</td><td>${esc(e.name)}</td><td colspan="2">${esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
       const svg = board.querySelector("svg"), W = 860, L = 190, R = 90, rh = 22, T = 30, H = T + ranked.length * rh + 30;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -417,25 +529,32 @@ function showCase(r, c){
       for (const f of [0, .25, .5, .75, 1]) { el("line", {x1: x(max * f), x2: x(max * f), y1: T - 6, y2: H - 24, stroke: css("--rule")}, svg);
         el("text", {x: x(max * f), y: H - 8, "text-anchor": "middle"}, svg, FD(max * f)); }
       el("text", {x: L, y: 14}, svg, "missed the final reading by →");
-      ranked.forEach((e, i) => { const y = T + i * rh, medal = ["--gold", "--silver", "--bronze"][i];
-        el("text", {x: L - 10, y: y + 15, "text-anchor": "end", style: `fill:${css(medal ? "--fg" : "--muted")};font-weight:${medal ? 600 : 400}`}, svg, `${i + 1}. ${e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name}`);
-        el("rect", {x: L, y: y + 4, width: Math.max(2, x(e.off_by) - L), height: rh - 8, rx: 3, fill: css(medal || (e.off_by < res.baseline_off_by ? "--good" : "--miss"))}, svg);
-        el("text", {x: x(e.off_by) + 6, y: y + 15, style: "font-family:" + css("--mono")}, svg, FD(e.off_by)); });
+      ranked.forEach((e, i) => { const y = T + i * rh, medal = ["--gold", "--silver", "--bronze"][i], g = el("g", {"data-name": key(e.name)}, svg);
+        el("rect", {x: 0, y: y + 1, width: W, height: rh - 2, rx: 4, class: "hl"}, g);
+        el("text", {x: L - 10, y: y + 15, "text-anchor": "end", style: `fill:${css(medal ? "--fg" : "--muted")};font-weight:${medal ? 600 : 400}`}, g, `${i + 1}. ${e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name}`);
+        const bar = el("rect", {x: L, y: y + 4, width: Math.max(2, x(e.off_by) - L), height: rh - 8, rx: 3, fill: css(medal || (e.off_by < res.baseline_off_by ? "--good" : "--miss"))}, g);
+        if (!calm) { bar.style.transformOrigin = `${L}px 0`; bar.style.animation = `grow .9s ${0.4 + i * 0.03}s both cubic-bezier(.2,.8,.2,1)`; }
+        el("text", {x: x(e.off_by) + 6, y: y + 15, style: "font-family:" + css("--mono")}, g, FD(e.off_by)); });
       const bx = x(res.baseline_off_by);
       el("line", {x1: bx, x2: bx, y1: T - 10, y2: H - 24, stroke: css("--accent"), "stroke-width": 2, "stroke-dasharray": "5 4"}, svg);
       el("text", {x: bx + 6, y: T - 8, style: `fill:${css("--accent")};font-weight:600`}, svg, "simple rule missed by " + FD(res.baseline_off_by));
+      const big = board.querySelector(".big"), dec = Math.abs(res.actual) < 100 && !Number.isInteger(res.actual);
+      count(big, res.actual, v => F(dec ? v : Math.round(v)));
     } else {
       const all = shown(fz.entries), ok = all.filter(e => e.status === "ok");
+      const ends = Q.kind === "coe" ? null : new Date(Q.week[1] + "T23:59:59+08:00");
       const when = Q.kind === "coe" ? "when LTA publishes the result" : `after ${day(Q.week[1])}`;
       const rule = fz.lock === "submit" ? "Each entry is the number its code gave on this page when it was submitted, checked by running it again on the same data."
                                         : `Each entry ran once on the data up to the close (${fz.history_rows} rows); the numbers are frozen.`;
       board.innerHTML = `<div class="bhead"><h2>Results</h2><span class="tag waiting">Closed · settles ${esc(when)}</span></div>
-        <div class="final"><span class="lbl">The final reading</span><b>?</b><span>Not in yet. It is taken from the real data ${esc(when)}, then the podium appears here.</span></div>
-        <div class="stats"><div class="stat"><b>${esc(F(fz.baseline))}</b><span>the simple rule says</span></div><div class="stat"><b>${ok.length}</b><span>entries</span></div>
+        <div class="final"><span class="lbl">The final reading</span><b class="big">?</b><span>Not in yet. It is taken from the real data ${esc(when)}, then the podium and the points appear here.${ends ? ` <span class="countdown"></span>` : ""}</span></div>
+        <div class="me"></div>
+        <div class="stats"><div class="stat"><b>${esc(F(fz.baseline))}</b><span>the simple rule says</span></div><div class="stat"><b>${ok.length}</b><span>players locked in</span></div>
           <div class="stat"><b>${esc(F(ok.reduce((a, e) => a + e.value, 0) / (ok.length || 1)))}</b><span>the class average</span></div></div>
-        <div class="chart"><svg role="img" aria-label="Every entry on one line, with the simple rule marked"></svg></div>
+        <div class="chart"><svg role="img" aria-label="Every locked entry on one line, with the simple rule marked"></svg></div>
         <p class="note">${esc(rule)}</p>
-        ${table(["Name", "Entry", "Submitted"], all.map(e => `<tr><td>${esc(e.name)}</td><td>${e.status === "ok" ? esc(F(e.value)) : esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
+        ${seasonHTML()}
+        ${table(["Name", "Entry", "Submitted"], all.map(e => `<tr data-name="${esc(key(e.name))}"><td>${esc(e.name)}</td><td>${e.status === "ok" ? esc(F(e.value)) : esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
       const svg = board.querySelector("svg"), W = 860, L = 30, R = 30, H = 120;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const vals = ok.map(e => e.value).concat(fz.baseline), lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * .06 || 1;
@@ -444,14 +563,20 @@ function showCase(r, c){
       for (let k = 0; k <= 4; k++) { const v = lo - pad + k / 4 * (hi - lo + 2 * pad); el("text", {x: x(v), y: 108, "text-anchor": "middle"}, svg, F(v)); }
       const stack = {};
       ok.slice().sort((a, b) => a.value - b.value).forEach(e => { const k = Math.round(x(e.value) / 9); stack[k] = (stack[k] || 0) + 1;
-        el("title", {}, el("circle", {cx: x(e.value), cy: 70 - (stack[k] - 1) * 11, r: 5, fill: css("--fg"), "fill-opacity": .75}, svg), `${e.name}: ${F(e.value)}`); });
+        const c = el("circle", {cx: x(e.value), cy: 70 - (stack[k] - 1) * 11, r: 5, fill: css("--fg"), "fill-opacity": .75, "data-name": key(e.name)}, svg);
+        el("title", {}, c, `${e.name}: ${F(e.value)}`); });
       const bx = x(fz.baseline);
       el("line", {x1: bx, x2: bx, y1: 8, y2: 84, stroke: css("--accent"), "stroke-width": 2, "stroke-dasharray": "5 4"}, svg);
       el("text", {x: bx + 6, y: 18, style: `fill:${css("--accent")};font-weight:600`}, svg, "simple rule " + F(fz.baseline));
+      const cd = board.querySelector(".countdown");
+      if (cd) { const tick = () => { const s = Math.max(0, (ends - Date.now()) / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+        cd.textContent = s > 0 ? `The week ends in ${d} d ${h} h ${m} min.` : "The week is over: the reveal comes with the next nightly update."; }; tick(); setInterval(tick, 30000); }
     }
+    myCard();
   }
   document.querySelector(".q").after(board);           // a closed round leads with its result
   draw(); board.hidden = false;
+  nameEl.addEventListener("input", myCard);
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 })();
 const PSHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsqMuE2mROxNGyQb5e926p3pyWkoSjIBdGKCetxgdi1FAfDC_fzba2Gho29d1xtDs_3SPQncl2LVCu/pub?gid=981299993&single=true&output=csv";
