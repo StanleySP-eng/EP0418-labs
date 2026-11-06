@@ -3,7 +3,10 @@ EP0418 Prediction League: every lab's question in one place.
 
 The entry page runs this file in the browser to build the test cases; the nightly job
 runs the same file to freeze entries and to settle them. For each lab:
-  data      the file in docs/data/ that predict(history) receives (cut at the close)
+  data      the file in docs/data/ that predict(history) receives
+  lock      "close":  every entry's code runs once at the close, on the data up to then (Labs 1-2)
+            "submit": the entry is the number its code gave on the page when it was submitted:
+                      after the close it runs once more on the data as it stood then, as a check
   kind      "week": the question is about a Monday-to-Sunday week
             "coe":  the question is about the next COE bidding exercise after the close,
                     whenever LTA holds it (the target is ("after", <last exercise seen>))
@@ -112,8 +115,9 @@ def predict(history):
 ''',
 }
 
-for _q in LABS.values():
+for _lab, _q in LABS.items():
     _q.setdefault("close", _q["week"][0] if "week" in _q else None)   # entries close when the week starts
+    _q.setdefault("lock", "close" if _lab in ("1", "2") else "submit")  # changed from Lab 3 on, 6 Nov 2026
 
 
 SINCE = {"psi_hourly.csv": "one row per hour from 1 January 2025 up to the day before entries close",
@@ -141,6 +145,8 @@ def any_ai_prompt(lab, idea="[write your idea here in a few words, or delete thi
         data = (" month is text such as \"2026-07\", there are two exercises a month (bidding_no 1 and 2), "
                 "and vehicle_class holds text such as \"Category A\" (every category is in the table).")
     since = SINCE[q["data"]]
+    if q["lock"] == "submit":
+        since = since.replace("the day before entries close", "the day before I submit")
     return f"""I am entering a prediction contest. Write one Python function for it.
 
 The question: {q['ask']} The target is {when}.

@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0            # from Lab 3 on, each entry runs on the data as it stood when it was submitted
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
