@@ -116,6 +116,12 @@ for _q in LABS.values():
     _q.setdefault("close", _q["week"][0] if "week" in _q else None)   # entries close when the week starts
 
 
+SINCE = {"psi_hourly.csv": "one row per hour from 1 January 2025 up to the day before entries close",
+         "taxi_hourly.csv": "one row per hour from 29 May 2026 up to the day before entries close",
+         "rain_daily.csv": "one row per day from 26 May 2026 up to the day before entries close (about 160 to 240 rows)",
+         "coe.csv": "every COE bidding exercise from 2010 up to the latest result"}
+
+
 def any_ai_prompt(lab, idea="[write your idea here in a few words, or delete this line]"):
     """A prompt for any AI outside Colab (ChatGPT, Claude, Copilot): it cannot see the notebook,
     so every rule the league checks is spelled out. Shown on the league page and in the labs."""
@@ -134,21 +140,26 @@ def any_ai_prompt(lab, idea="[write your idea here in a few words, or delete thi
     else:
         data = (" month is text such as \"2026-07\", there are two exercises a month (bidding_no 1 and 2), "
                 "and vehicle_class holds text such as \"Category A\" (every category is in the table).")
+    since = SINCE[q["data"]]
     return f"""I am entering a prediction contest. Write one Python function for it.
 
 The question: {q['ask']} The target is {when}.
 The simple rule to beat: {q['baseline_says']}.
 My idea: {idea}
 
+First, check my idea against the data before you write anything. history holds {since}. There is nothing earlier, no other columns, and no weather forecast or internet. If my idea needs something history does not have (past years, a season from another year, wind, temperature, a live feed), say so plainly, then either shrink the idea to what the data can support or fall back to the simple rule. Never write a branch that can only run on data that is not there.
+
 The contest runs the function automatically, so follow these rules exactly:
 1. Name it predict, with exactly one input called history:  def predict(history):
 2. history is a pandas DataFrame that the contest passes in, oldest row first. Its column names are exactly: {names}. What they hold: {q['cols']}.{data}
-3. Do not read any file and do not ask for input. All the data is already in history. If I attach a data file, look at it only to choose the idea; the function must still take everything from history.
-4. Return one number with return float(...). Not a list, a table, text, None or NaN.
-5. Use only pandas, numpy and the Python standard library, and finish in under 30 seconds.
-6. Give only the import lines and the function: no example data, no test code, nothing that calls predict.
+3. Do not read any file, do not call the internet and do not ask for input. All the data is already in history. If I attach a data file, look at it only to choose the idea; the function must still take everything from history.
+4. The first lines of the function print the first date, the last date and the number of rows, so I can see what the code was given.
+5. No try/except that hides a problem. If something fails, let it fail so I can see it.
+6. Return one number with return float(...). Not a list, a table, text, None or NaN.
+7. Use only pandas, numpy and the Python standard library, and finish in under 30 seconds.
+8. Give only the import lines and the function: no example data, no test code, nothing that calls predict.
 
-After the code, explain the idea in one sentence."""
+After the code: one sentence on what the code really does with this data, and one sentence naming any part of my idea you dropped and why. If you dropped nothing, say so."""
 
 
 def load(lab, csv_file):
