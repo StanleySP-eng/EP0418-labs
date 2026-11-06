@@ -87,6 +87,8 @@ td.n{font-family:var(--mono)}
 </div>
 <script>
 const META = {"1": {"title": "How bad will the haze get next week?", "unit": "PSI", "kind": "week", "ask": "The highest 24-hour PSI reading in any region of Singapore during the target week.", "week": ["2026-10-26", "2026-11-01"], "baseline_says": "the highest reading in the last seven days"}, "2": {"title": "How much rain next week?", "unit": "mm", "kind": "week", "ask": "Singapore's island-average rainfall in mm, summed over the target week.", "week": ["2026-11-02", "2026-11-08"], "baseline_says": "next week will be like last week (the last seven days, summed)"}, "3": {"title": "How many taxis at 8 am on Monday?", "unit": "taxis", "kind": "week", "ask": "Taxis available across Singapore in the 8 o'clock reading on the Monday of the target week.", "week": ["2026-11-09", "2026-11-15"], "baseline_says": "the average of every Monday 8 o'clock reading so far"}, "4": {"title": "How many dry days next week?", "unit": "days", "kind": "week", "ask": "On how many of the seven days of the target week the island-average rain is zero (under 0.05 mm).", "week": ["2026-11-16", "2026-11-22"], "baseline_says": "the share of dry days in the last sixty days, times seven, rounded"}, "5": {"title": "What will the busiest hour's taxi count be?", "unit": "taxis", "kind": "week", "ask": "The largest hourly taxi-availability count during the target week.", "week": ["2026-11-30", "2026-12-06"], "baseline_says": "the largest hourly count in the last seven days"}, "6": {"title": "How many taxis at 6 pm on Friday?", "unit": "taxis", "kind": "week", "ask": "Taxis available in the 18 o'clock reading on the Friday of the target week.", "week": ["2026-12-07", "2026-12-13"], "baseline_says": "the 18 o'clock reading on the last Friday so far"}, "7": {"title": "What will the next Cat A COE premium be?", "unit": "S$", "kind": "coe", "ask": "The Category A premium at the next COE bidding exercise after entries close.", "week": null, "baseline_says": "the Category A premium at the most recent exercise"}, "8": {"title": "Which day will be wettest?", "unit": "(1 = Mon \u2026 7 = Sun)", "kind": "week", "ask": "Which day of the target week has the most island-average rain: 1 for Monday through 7 for Sunday.", "week": ["2027-01-18", "2027-01-24"], "baseline_says": "the weekday with the most rain on average over the last nine weeks"}};
+const HIDE = new Set(["stanley", "stanley hello"]);   // the module leader's test entries: kept in the data, not shown
+const shown = list => (list || []).filter(e => !HIDE.has(e.name.trim().toLowerCase()));
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -217,6 +219,8 @@ async function load() {
   const labs = Object.keys(META), settled = [], boards = [];
   const got = await Promise.all(labs.map(async l => [l, await get(`data/results_lab${l}.json`), await get(`data/frozen_lab${l}.json`)]));
   for (const [lab, r, f] of got.reverse()) {
+    if (r) { r.ranked = shown(r.ranked); r.no_number = shown(r.no_number); }
+    if (f) f.entries = shown(f.entries);
     if (r) { settled.push([lab, r]); boards.push(settledBoard(r, lab)); }
     else if (f) boards.push(waitingBoard(f, lab));
   }
