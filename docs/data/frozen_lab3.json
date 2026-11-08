@@ -1,0 +1,267 @@
+{
+ "lab": "3",
+ "title": "How many taxis at 8 am on Monday?",
+ "close": "2026-11-09",
+ "target": "2026-11-09",
+ "lock": "submit",
+ "history_rows": 3901,
+ "baseline": 2264.3478260869565,
+ "entries": [
+  {
+   "name": "Addie",
+   "submitted": "2026-11-07 01:39",
+   "status": "ok",
+   "value": 1756.822,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Balaji Elakkiya",
+   "submitted": "2026-11-08 23:36",
+   "status": "ok",
+   "value": 2021.5,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "Enzo",
+   "submitted": "2026-11-08 22:58",
+   "status": "ok",
+   "value": 3399.245,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "ethan",
+   "submitted": "2026-11-06 15:44",
+   "status": "ok",
+   "value": 2455.5,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Graham Finny",
+   "submitted": "2026-11-08 23:43",
+   "status": "ok",
+   "value": 2651.75,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "haajurudeene",
+   "submitted": "2026-11-06 15:18",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "hayden",
+   "submitted": "2026-11-06 15:32",
+   "status": "ok",
+   "value": 2021.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Hpone Hein Htet",
+   "submitted": "2026-11-08 15:22",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "Ilhan",
+   "submitted": "2026-11-06 15:39",
+   "status": "ok",
+   "value": 2522.626,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Jerrell Goh Jing Rui",
+   "submitted": "2026-11-06 15:38",
+   "status": "ok",
+   "value": 1538.391,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Julia Choa Xin Yue",
+   "submitted": "2026-10-22 21:16",
+   "status": "ok",
+   "value": 2287.524,
+   "history_rows": 3473,
+   "checked": true
+  },
+  {
+   "name": "jun fu",
+   "submitted": "2026-11-06 11:45",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "jyoung",
+   "submitted": "2026-11-06 15:26",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Kevin",
+   "submitted": "2026-11-06 11:28",
+   "status": "ok",
+   "value": 2233.667,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Kieran Aw xu rui",
+   "submitted": "2026-11-06 15:38",
+   "status": "ok",
+   "value": 2170.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Ko Shao Hong",
+   "submitted": "2026-11-06 19:12",
+   "status": "ok",
+   "value": 3459.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Li Mingxuan",
+   "submitted": "2026-11-06 11:24",
+   "status": "ok",
+   "value": 1864.918,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Lim Xu Kang",
+   "submitted": "2026-11-06 13:34",
+   "status": "ok",
+   "value": 1920.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Loh Hao Chen Jayven",
+   "submitted": "2026-11-07 01:57",
+   "status": "ok",
+   "value": 1972.5,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Matthew",
+   "submitted": "2026-11-06 15:50",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Max Tum",
+   "submitted": "2026-11-06 11:41",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "MUSTAFA MEHREEN",
+   "submitted": "2026-11-06 11:19",
+   "status": "ok",
+   "value": 2170.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Nathan",
+   "submitted": "2026-11-07 18:15",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3858,
+   "checked": true
+  },
+  {
+   "name": "Nic",
+   "submitted": "2026-11-06 15:37",
+   "status": "ok",
+   "value": 2021.0,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Sara",
+   "submitted": "2026-11-06 18:56",
+   "status": "ok",
+   "value": 2481.488,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Sathish Sanjith Nithish",
+   "submitted": "2026-11-06 15:38",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Soh Kai Xun",
+   "submitted": "2026-11-06 11:35",
+   "status": "ok",
+   "value": 2112.5,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Thomas Lee",
+   "submitted": "2026-11-08 23:50",
+   "status": "ok",
+   "value": 1972.5,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "vivienne",
+   "submitted": "2026-11-06 15:31",
+   "status": "ok",
+   "value": 1972.5,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "xena lai",
+   "submitted": "2026-11-06 11:43",
+   "status": "ok",
+   "value": 2185.324,
+   "history_rows": 3835,
+   "checked": true
+  },
+  {
+   "name": "Zachery Swee Zhi Wen",
+   "submitted": "2026-11-08 19:28",
+   "status": "ok",
+   "value": 2264.348,
+   "history_rows": 3881,
+   "checked": true
+  },
+  {
+   "name": "Zheng JunJie",
+   "submitted": "2026-11-06 15:41",
+   "status": "ok",
+   "value": 2087.75,
+   "history_rows": 3835,
+   "checked": true
+  }
+ ]
+}

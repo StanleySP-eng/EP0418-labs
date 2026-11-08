@@ -1,0 +1,519 @@
+{
+ "lab": "2",
+ "title": "How much rain next week?",
+ "close": "2026-11-02",
+ "target": "2026-11-02",
+ "history_rows": 160,
+ "baseline": 31.162,
+ "entries": [
+  {
+   "name": "Addie",
+   "submitted": "2026-10-30 11:32",
+   "status": "ok",
+   "value": 33.924,
+   "off_by": 40.949000000000005
+  },
+  {
+   "name": "Arya More",
+   "submitted": "2026-11-01 19:36",
+   "status": "ok",
+   "value": 28.601,
+   "off_by": 46.272000000000006
+  },
+  {
+   "name": "Balaji Elakkiya",
+   "submitted": "2026-11-01 23:11",
+   "status": "ok",
+   "value": 30.719,
+   "off_by": 44.154
+  },
+  {
+   "name": "Enzo",
+   "submitted": "2026-11-01 12:54",
+   "status": "ok",
+   "value": 45.269,
+   "off_by": 29.604000000000006
+  },
+  {
+   "name": "ethan",
+   "submitted": "2026-10-30 15:39",
+   "status": "ok",
+   "value": 24.76,
+   "off_by": 50.113
+  },
+  {
+   "name": "Graham Finny",
+   "submitted": "2026-10-30 11:38",
+   "status": "ok",
+   "value": 27.961,
+   "off_by": 46.912000000000006
+  },
+  {
+   "name": "haajurudeene",
+   "submitted": "2026-10-30 15:13",
+   "status": "ok",
+   "value": 33.75,
+   "off_by": 41.123000000000005
+  },
+  {
+   "name": "hayden",
+   "submitted": "2026-10-30 15:12",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Ilhan",
+   "submitted": "2026-10-30 15:35",
+   "status": "ok",
+   "value": 29.005,
+   "off_by": 45.86800000000001
+  },
+  {
+   "name": "Jerrell Goh Jing Rui",
+   "submitted": "2026-10-30 15:22",
+   "status": "ok",
+   "value": 33.75,
+   "off_by": 41.123000000000005
+  },
+  {
+   "name": "Joash V. Wong",
+   "submitted": "2026-10-30 11:25",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Johnson Lim",
+   "submitted": "2026-10-30 15:51",
+   "status": "ok",
+   "value": 10.325,
+   "off_by": 64.548
+  },
+  {
+   "name": "Julia",
+   "submitted": "2026-10-30 00:28",
+   "status": "ok",
+   "value": 24.93,
+   "off_by": 49.943000000000005
+  },
+  {
+   "name": "Julia Choa Xin Yue",
+   "submitted": "2026-10-22 21:16",
+   "status": "ok",
+   "value": 31.162,
+   "off_by": 43.711000000000006
+  },
+  {
+   "name": "jun fu",
+   "submitted": "2026-11-01 21:24",
+   "status": "ok",
+   "value": 31.211,
+   "off_by": 43.662000000000006
+  },
+  {
+   "name": "jyoung",
+   "submitted": "2026-10-30 15:27",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "KAELAN CHIUH TING JEE",
+   "submitted": "2026-10-30 15:25",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Kevin",
+   "submitted": "2026-10-30 11:07",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Kieran Aw xu rui",
+   "submitted": "2026-10-30 15:37",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Ko Shao Hong",
+   "submitted": "2026-10-30 19:24",
+   "status": "ok",
+   "value": 27.244,
+   "off_by": 47.629000000000005
+  },
+  {
+   "name": "Kor Zong You",
+   "submitted": "2026-10-30 11:40",
+   "status": "ok",
+   "value": 31.204,
+   "off_by": 43.669000000000004
+  },
+  {
+   "name": "Lim Xu Kang",
+   "submitted": "2026-10-30 11:30",
+   "status": "ok",
+   "value": 51.928,
+   "off_by": 22.945000000000007
+  },
+  {
+   "name": "Loh Hao Chen Jayven",
+   "submitted": "2026-10-30 11:42",
+   "status": "ok",
+   "value": 22.539,
+   "off_by": 52.334
+  },
+  {
+   "name": "Matthew",
+   "submitted": "2026-11-01 21:01",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Max Tum",
+   "submitted": "2026-10-30 11:28",
+   "status": "ok",
+   "value": 31.162,
+   "off_by": 43.711000000000006
+  },
+  {
+   "name": "MUSTAFA MEHREEN",
+   "submitted": "2026-10-30 11:03",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Nathan Sng",
+   "submitted": "2026-10-30 16:09",
+   "status": "ok",
+   "value": 30.004,
+   "off_by": 44.869
+  },
+  {
+   "name": "Nicholas Teng",
+   "submitted": "2026-10-30 15:34",
+   "status": "ok",
+   "value": 33.351,
+   "off_by": 41.522000000000006
+  },
+  {
+   "name": "Sara",
+   "submitted": "2026-10-30 11:24",
+   "status": "ok",
+   "value": 26.941,
+   "off_by": 47.932
+  },
+  {
+   "name": "Sathish Sanjith Nithish",
+   "submitted": "2026-10-30 15:07",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Soh Kai Xun",
+   "submitted": "2026-10-30 11:25",
+   "status": "ok",
+   "value": 31.909,
+   "off_by": 42.964000000000006
+  },
+  {
+   "name": "Thomas Lee Jiajun",
+   "submitted": "2026-10-30 11:39",
+   "status": "ok",
+   "value": 27.026,
+   "off_by": 47.84700000000001
+  },
+  {
+   "name": "Thuzar Thiri Khit",
+   "submitted": "2026-10-30 11:33",
+   "status": "ok",
+   "value": 24.76,
+   "off_by": 50.113
+  },
+  {
+   "name": "xena lai",
+   "submitted": "2026-10-30 11:39",
+   "status": "ok",
+   "value": 26.488,
+   "off_by": 48.385000000000005
+  },
+  {
+   "name": "Zachery Swee Zhi Wen",
+   "submitted": "2026-10-30 16:39",
+   "status": "ok",
+   "value": 29.046,
+   "off_by": 45.827000000000005
+  },
+  {
+   "name": "Zheng JunJie",
+   "submitted": "2026-10-30 19:02",
+   "status": "ok",
+   "value": 28.112,
+   "off_by": 46.76100000000001
+  }
+ ],
+ "actual": 74.873,
+ "baseline_off_by": 43.711000000000006,
+ "ranked": [
+  {
+   "name": "Lim Xu Kang",
+   "submitted": "2026-10-30 11:30",
+   "status": "ok",
+   "value": 51.928,
+   "off_by": 22.945000000000007
+  },
+  {
+   "name": "Enzo",
+   "submitted": "2026-11-01 12:54",
+   "status": "ok",
+   "value": 45.269,
+   "off_by": 29.604000000000006
+  },
+  {
+   "name": "Joash V. Wong",
+   "submitted": "2026-10-30 11:25",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "jyoung",
+   "submitted": "2026-10-30 15:27",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "KAELAN CHIUH TING JEE",
+   "submitted": "2026-10-30 15:25",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Kevin",
+   "submitted": "2026-10-30 11:07",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Sathish Sanjith Nithish",
+   "submitted": "2026-10-30 15:07",
+   "status": "ok",
+   "value": 35.475,
+   "off_by": 39.398
+  },
+  {
+   "name": "Addie",
+   "submitted": "2026-10-30 11:32",
+   "status": "ok",
+   "value": 33.924,
+   "off_by": 40.949000000000005
+  },
+  {
+   "name": "haajurudeene",
+   "submitted": "2026-10-30 15:13",
+   "status": "ok",
+   "value": 33.75,
+   "off_by": 41.123000000000005
+  },
+  {
+   "name": "Jerrell Goh Jing Rui",
+   "submitted": "2026-10-30 15:22",
+   "status": "ok",
+   "value": 33.75,
+   "off_by": 41.123000000000005
+  },
+  {
+   "name": "Nicholas Teng",
+   "submitted": "2026-10-30 15:34",
+   "status": "ok",
+   "value": 33.351,
+   "off_by": 41.522000000000006
+  },
+  {
+   "name": "Soh Kai Xun",
+   "submitted": "2026-10-30 11:25",
+   "status": "ok",
+   "value": 31.909,
+   "off_by": 42.964000000000006
+  },
+  {
+   "name": "jun fu",
+   "submitted": "2026-11-01 21:24",
+   "status": "ok",
+   "value": 31.211,
+   "off_by": 43.662000000000006
+  },
+  {
+   "name": "Kor Zong You",
+   "submitted": "2026-10-30 11:40",
+   "status": "ok",
+   "value": 31.204,
+   "off_by": 43.669000000000004
+  },
+  {
+   "name": "Julia Choa Xin Yue",
+   "submitted": "2026-10-22 21:16",
+   "status": "ok",
+   "value": 31.162,
+   "off_by": 43.711000000000006
+  },
+  {
+   "name": "Max Tum",
+   "submitted": "2026-10-30 11:28",
+   "status": "ok",
+   "value": 31.162,
+   "off_by": 43.711000000000006
+  },
+  {
+   "name": "Balaji Elakkiya",
+   "submitted": "2026-11-01 23:11",
+   "status": "ok",
+   "value": 30.719,
+   "off_by": 44.154
+  },
+  {
+   "name": "hayden",
+   "submitted": "2026-10-30 15:12",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Kieran Aw xu rui",
+   "submitted": "2026-10-30 15:37",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Matthew",
+   "submitted": "2026-11-01 21:01",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "MUSTAFA MEHREEN",
+   "submitted": "2026-10-30 11:03",
+   "status": "ok",
+   "value": 30.672,
+   "off_by": 44.20100000000001
+  },
+  {
+   "name": "Nathan Sng",
+   "submitted": "2026-10-30 16:09",
+   "status": "ok",
+   "value": 30.004,
+   "off_by": 44.869
+  },
+  {
+   "name": "Zachery Swee Zhi Wen",
+   "submitted": "2026-10-30 16:39",
+   "status": "ok",
+   "value": 29.046,
+   "off_by": 45.827000000000005
+  },
+  {
+   "name": "Ilhan",
+   "submitted": "2026-10-30 15:35",
+   "status": "ok",
+   "value": 29.005,
+   "off_by": 45.86800000000001
+  },
+  {
+   "name": "Arya More",
+   "submitted": "2026-11-01 19:36",
+   "status": "ok",
+   "value": 28.601,
+   "off_by": 46.272000000000006
+  },
+  {
+   "name": "Zheng JunJie",
+   "submitted": "2026-10-30 19:02",
+   "status": "ok",
+   "value": 28.112,
+   "off_by": 46.76100000000001
+  },
+  {
+   "name": "Graham Finny",
+   "submitted": "2026-10-30 11:38",
+   "status": "ok",
+   "value": 27.961,
+   "off_by": 46.912000000000006
+  },
+  {
+   "name": "Ko Shao Hong",
+   "submitted": "2026-10-30 19:24",
+   "status": "ok",
+   "value": 27.244,
+   "off_by": 47.629000000000005
+  },
+  {
+   "name": "Thomas Lee Jiajun",
+   "submitted": "2026-10-30 11:39",
+   "status": "ok",
+   "value": 27.026,
+   "off_by": 47.84700000000001
+  },
+  {
+   "name": "Sara",
+   "submitted": "2026-10-30 11:24",
+   "status": "ok",
+   "value": 26.941,
+   "off_by": 47.932
+  },
+  {
+   "name": "xena lai",
+   "submitted": "2026-10-30 11:39",
+   "status": "ok",
+   "value": 26.488,
+   "off_by": 48.385000000000005
+  },
+  {
+   "name": "Julia",
+   "submitted": "2026-10-30 00:28",
+   "status": "ok",
+   "value": 24.93,
+   "off_by": 49.943000000000005
+  },
+  {
+   "name": "ethan",
+   "submitted": "2026-10-30 15:39",
+   "status": "ok",
+   "value": 24.76,
+   "off_by": 50.113
+  },
+  {
+   "name": "Thuzar Thiri Khit",
+   "submitted": "2026-10-30 11:33",
+   "status": "ok",
+   "value": 24.76,
+   "off_by": 50.113
+  },
+  {
+   "name": "Loh Hao Chen Jayven",
+   "submitted": "2026-10-30 11:42",
+   "status": "ok",
+   "value": 22.539,
+   "off_by": 52.334
+  },
+  {
+   "name": "Johnson Lim",
+   "submitted": "2026-10-30 15:51",
+   "status": "ok",
+   "value": 10.325,
+   "off_by": 64.548
+  }
+ ],
+ "no_number": []
+}
