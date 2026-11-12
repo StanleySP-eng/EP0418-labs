@@ -26,6 +26,7 @@ Every check maps to a syllabus outcome; see the SLO tag in each docstring.
 from __future__ import annotations
 
 import functools
+import re
 
 import numpy as np
 import pandas as pd
@@ -356,6 +357,12 @@ class _Check:
                 "        check.rows_accounted_for(raw, clean, grid,\n"
                 "            explain='dropped 140 duplicate timestamps; resampling "
                 "created 66 empty slots across the 11 June outage')")
+        if not re.search(r"\d", clean_expl):
+            return self._record(
+                key, FAIL, "rows_accounted_for",
+                f"Row count changed, but your explanation gives no numbers. {trail}.",
+                "Say how many rows each change removed or added, and why: words like "
+                "'some rows were removed' do not account for anything.")
         return self._record(key, PASS, "rows_accounted_for",
                             f"{trail}. Explained: \"{clean_expl}\"")
 
