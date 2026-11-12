@@ -359,6 +359,25 @@ class _Check:
         return self._record(key, PASS, "rows_accounted_for",
                             f"{trail}. Explained: \"{clean_expl}\"")
 
+    @_safe
+    def rows_reconciled(self, before, after, cause, why, names=("before", "after")):
+        """
+        The change in row count from `before` to `after` must equal `cause`: a count of
+        rows you can name, worked out from the data (for example -140 for 140 repeated
+        timestamps removed, or +66 for 66 empty slots added). Any difference is rows lost
+        or made up for a reason nobody chose.
+        """
+        nb, na, c = _n(before), _n(after), int(cause)
+        d = na - nb
+        key = f"rows_reconciled({names[0]} -> {names[1]})"
+        trail = f"{names[0]} {nb:,} -> {names[1]} {na:,} ({d:+,})"
+        if d == c:
+            return self._record(key, PASS, key, f"{trail}: all {abs(d):,} explained by {abs(c):,} {why}.")
+        return self._record(
+            key, FAIL, key,
+            f"{trail}, but there are {abs(c):,} {why}: {abs(d - c):,} row(s) unaccounted for.",
+            f"Go back to the task that made {names[1]}: its Expected output says what each wrong number means.")
+
     # ---------------------------------------------------------------- modelling
     @_safe
     def compare_to_baseline(self, model_score, baseline_score, metric="MAE",
@@ -755,12 +774,21 @@ class _Show:
         except Exception as e:                                        # noqa: BLE001
             print(f"show.tree could not draw this: {e}")
 
-    def series(self, obj, col=None, title=None, ylabel=None, span=None, hline=None):
-        """One series over time. span=(start, end) shades a period; hline draws a level."""
+    def series(self, obj, col=None, title=None, ylabel=None, span=None, hline=None, window=None):
+        """One series over time. span=(start, end) shades a period; hline draws a level;
+        window=(start, end) draws only that stretch, with a dot on every reading."""
         try:
             s = self._series(obj, col)
+            if window is not None:
+                a, b = pd.Timestamp(window[0]), pd.Timestamp(window[1])
+                tz = getattr(s.index, "tz", None)
+                if tz is not None:
+                    a = a.tz_localize(tz) if a.tzinfo is None else a
+                    b = b.tz_localize(tz) if b.tzinfo is None else b
+                s = s[(s.index >= a) & (s.index <= b)]
             fig, ax = self._ax()
-            ax.plot(s.index, s.values, color=self.INK, lw=0.8)
+            ax.plot(s.index, s.values, color=self.INK, lw=0.8,
+                    marker="o" if window is not None else None, ms=2.5)
             if span is not None:
                 a, b = pd.Timestamp(span[0]), pd.Timestamp(span[1])
                 tz = getattr(s.index, "tz", None)
