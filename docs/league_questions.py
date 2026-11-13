@@ -39,7 +39,11 @@ LABS = {
     "4": dict(title="How many dry days next week?", unit="days", data="rain_daily.csv", kind="week",
               week=("2026-11-16", "2026-11-22"), cols=RAIN_COLS,
               ask="On how many of the seven days of the target week the island-average rain is zero (under 0.05 mm).",
-              baseline_says="the share of dry days in the last sixty days, times seven, rounded"),
+              baseline_says="the share of dry days in the last sixty days, times seven, rounded",
+              settle=("Early, on the morning of Friday 20 November, so the result can be shown in class. "
+                      "Only Monday 16 to Thursday 19 November are counted, and the count is scaled to seven days: "
+                      "dry days \u00d7 7 \u00f7 4. So 0 dry days counts as 0, 1 as 1.75, 2 as 3.5. Still give your "
+                      "number for the whole week.")),
     "5": dict(title="What will the busiest hour's taxi count be?", unit="taxis", data="taxi_hourly.csv", kind="week",
               week=("2026-11-30", "2026-12-06"), cols=TAXI_COLS,
               ask="The largest hourly taxi-availability count during the target week.",
