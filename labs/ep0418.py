@@ -248,9 +248,9 @@ class _Check:
             return self._record(
                 key, FAIL, "no_duplicate_timestamps",
                 f"{n} duplicated timestamp(s).",
-                "Loggers repeat rows when they retry. Decide whether to keep the first, "
-                "the last, or average them:\n"
-                "        df = df.drop_duplicates(subset='timestamp', keep='first')")
+                "Loggers repeat rows when they retry. Compare the copies of a few "
+                "repeated timestamps first, then choose keep='first' or keep='last':\n"
+                "        df = df.drop_duplicates(subset='timestamp', keep=...)")
         return self._record(key, PASS, "no_duplicate_timestamps",
                             f"All {len(t):,} timestamps unique.")
 
