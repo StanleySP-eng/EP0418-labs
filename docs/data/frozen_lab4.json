@@ -1,0 +1,267 @@
+{
+ "lab": "4",
+ "title": "How many dry days next week?",
+ "close": "2026-11-16",
+ "target": "2026-11-16",
+ "lock": "submit",
+ "history_rows": 174,
+ "baseline": 2.0,
+ "entries": [
+  {
+   "name": "Addie",
+   "submitted": "2026-11-13 11:23",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Balaji Elakkiya",
+   "submitted": "2026-11-14 20:14",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 172,
+   "checked": true
+  },
+  {
+   "name": "Enzo",
+   "submitted": "2026-11-14 00:24",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "ethan",
+   "submitted": "2026-11-13 15:28",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Graham Finny",
+   "submitted": "2026-11-13 14:11",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "haajurudeene",
+   "submitted": "2026-11-13 14:53",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Hpone Hein Htet",
+   "submitted": "2026-11-15 22:23",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 173,
+   "checked": true
+  },
+  {
+   "name": "Ilhan",
+   "submitted": "2026-11-13 15:20",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Jerrell Goh Jing Rui",
+   "submitted": "2026-11-13 15:21",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Julia Choa Xin Yue",
+   "submitted": "2026-11-13 14:09",
+   "status": "ok",
+   "value": 0.42,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "jun fu",
+   "submitted": "2026-11-13 11:27",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "jyoung",
+   "submitted": "2026-11-13 15:01",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "KAELAN CHIUH TING JEE",
+   "submitted": "2026-11-13 15:13",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Kevin",
+   "submitted": "2026-11-13 10:46",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Kieran aw xu rui",
+   "submitted": "2026-11-13 15:13",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Ko Shao Hong",
+   "submitted": "2026-11-13 15:23",
+   "status": "ok",
+   "value": 1.143,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Kor Zong You",
+   "submitted": "2026-11-13 11:23",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Lim Xu Kang",
+   "submitted": "2026-11-13 13:27",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Loh Hao Chen Jayven",
+   "submitted": "2026-11-13 11:29",
+   "status": "ok",
+   "value": 1.051,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Matthew",
+   "submitted": "2026-11-13 15:37",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Max Tum",
+   "submitted": "2026-11-13 11:15",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "MUSTAFA MEHREEN",
+   "submitted": "2026-11-13 11:04",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Nathan",
+   "submitted": "2026-11-13 16:34",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Nic",
+   "submitted": "2026-11-13 15:23",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Sara",
+   "submitted": "2026-11-13 16:05",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Sathish Sanjith Nithish",
+   "submitted": "2026-11-13 15:08",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Soh Kai Xun",
+   "submitted": "2026-11-13 11:14",
+   "status": "ok",
+   "value": 0.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Thomas Lee Jiajun",
+   "submitted": "2026-11-13 11:26",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "vivienne",
+   "submitted": "2026-11-13 15:19",
+   "status": "ok",
+   "value": 0.88,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "xena lai",
+   "submitted": "2026-11-13 11:23",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Zachery Swee Zhi Wen",
+   "submitted": "2026-11-13 16:18",
+   "status": "ok",
+   "value": 1.0,
+   "history_rows": 171,
+   "checked": true
+  },
+  {
+   "name": "Zheng JunJie",
+   "submitted": "2026-11-13 15:27",
+   "status": "ok",
+   "value": 2.0,
+   "history_rows": 171,
+   "checked": true
+  }
+ ]
+}
