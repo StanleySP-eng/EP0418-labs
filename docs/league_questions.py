@@ -49,7 +49,7 @@ LABS = {
               ask="The largest hourly taxi-availability count during the target week.",
               baseline_says="the largest hourly count in the last seven days"),
     "6": dict(title="How many taxis at 6 pm on Friday?", unit="taxis", data="taxi_hourly.csv", kind="week",
-              week=("2027-01-04", "2027-01-10"), cols=TAXI_COLS,
+              week=("2026-12-07", "2026-12-13"), cols=TAXI_COLS,
               ask="Taxis available in the 18 o'clock reading on the Friday of the target week.",
               baseline_says="the 18 o'clock reading on the last Friday so far"),
     "7": dict(title="What will the next Cat A COE premium be?", unit="S$", data="coe.csv", kind="coe",
