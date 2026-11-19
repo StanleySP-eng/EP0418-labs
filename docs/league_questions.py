@@ -236,6 +236,9 @@ def answer(lab, df, target):
             hit = a[(a["month"] == month) & (a["bidding_no"].astype(str) == str(no))]
         return float(hit["premium"].iloc[0]) if len(hit) else None
     w = _week_rows(lab, df, target)
+    if lab == "4":                      # settled early (see its "settle" text): Monday to Thursday, scaled to seven days
+        w4 = w.head(4)
+        return float((w4["rain_mm_mean"] < 0.05).sum() * 7 / 4) if len(w4) == 4 else None
     if lab in ("2", "4", "8"):
         if len(w) < 7:
             return None

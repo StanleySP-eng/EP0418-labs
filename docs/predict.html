@@ -430,8 +430,9 @@ function showCase(r, c){
   const level = p => LEVELS.filter(l => p >= l[0]).pop()[1];
   function score(r) {                              // one settled round -> {name key: {points, rank, badges, ...}}
     const ranked = shown(r.ranked), n = ranked.length, out = {};
-    ranked.forEach((e, i) => {
-      const beat = e.off_by < r.baseline_off_by, bull = r.actual && e.off_by <= Math.abs(r.actual) * 0.05;
+    ranked.forEach((e, j) => {
+      const i = ranked.filter(o => o.off_by < e.off_by - 1e-9).length;   // equal guesses share a place
+      const beat = e.off_by < r.baseline_off_by, bull = r.actual ? e.off_by <= Math.abs(r.actual) * 0.05 : e.off_by < 1e-9;
       const badges = [];
       if (i < 3) badges.push(["gold", "silver", "bronze"][i]);
       if (beat) badges.push("beat");
@@ -511,8 +512,14 @@ function showCase(r, c){
 
   function draw() {
     if (res) {
-      const ranked = shown(res.ranked), none = shown(res.no_number), beat = ranked.filter(e => e.off_by < res.baseline_off_by).length, top = ranked.slice(0, 3);
-      const podium = [1, 0, 2].map(i => top[i] ? `<div class="step p${i + 1}" data-name="${esc(key(top[i].name))}"><div class="place">${i + 1}</div><div class="who">${esc(top[i].name)}</div><div class="num">said ${esc(F(top[i].value))}</div><div class="off">missed by ${esc(FD(top[i].off_by))}</div></div>` : "<div></div>").join("");
+      const ranked = shown(res.ranked), none = shown(res.no_number), beat = ranked.filter(e => e.off_by < res.baseline_off_by).length;
+      const place = e => 1 + ranked.filter(o => o.off_by < e.off_by - 1e-9).length;   // equal guesses share a place
+      const top = [];                                   // the first three places; a tie fills one step
+      for (const e of ranked) { const last = top[top.length - 1];
+        if (last && place(last[0]) === place(e)) last.push(e); else if (top.length < 3) top.push([e]); else break; }
+      const podium = [1, 0, 2].map(i => { const g = top[i]; if (!g) return "<div></div>";
+        const who = g.length <= 3 ? g.map(e => e.name).join(", ") : `${g.length} players tied`;
+        return `<div class="step p${i + 1}" data-name="${esc(key(g[0].name))}"><div class="place">${place(g[0])}</div><div class="who">${esc(who)}</div><div class="num">said ${esc(F(g[0].value))}</div><div class="off">missed by ${esc(FD(g[0].off_by))}</div></div>`; }).join("");
       board.innerHTML = `<div class="bhead"><h2>Results</h2><span class="tag settled">Settled</span></div>
         <div class="final"><span class="lbl">The final reading</span><b class="big">${esc(F(res.actual))}</b><span>${esc(Q.ask)} That is what really happened in ${esc(week)}.</span></div>
         <div class="me"></div>
@@ -523,7 +530,7 @@ function showCase(r, c){
         <div class="chart"><svg role="img" aria-label="How far each entry missed the final reading, closest first"></svg></div>
         ${res.note ? `<p class="note">${esc(res.note)}</p>` : ""}
         ${seasonHTML()}
-        ${table(["#", "Name", "Said", "Missed by", "Submitted"], ranked.map((e, i) => `<tr data-name="${esc(key(e.name))}"><td>${i + 1}</td><td>${esc(e.name)}</td><td>${esc(F(e.value))}</td><td>${esc(FD(e.off_by))}</td><td>${esc(e.submitted)}</td></tr>`).join("") +
+        ${table(["#", "Name", "Said", "Missed by", "Submitted"], ranked.map(e => `<tr data-name="${esc(key(e.name))}"><td>${place(e)}</td><td>${esc(e.name)}</td><td>${esc(F(e.value))}</td><td>${esc(FD(e.off_by))}</td><td>${esc(e.submitted)}</td></tr>`).join("") +
             none.map(e => `<tr><td>–</td><td>${esc(e.name)}</td><td colspan="2">${esc(e.status)}</td><td>${esc(e.submitted)}</td></tr>`).join(""))}`;
       const svg = board.querySelector("svg"), W = 860, L = 190, R = 90, rh = 22, T = 30, H = T + ranked.length * rh + 30;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -531,9 +538,9 @@ function showCase(r, c){
       for (const f of [0, .25, .5, .75, 1]) { el("line", {x1: x(max * f), x2: x(max * f), y1: T - 6, y2: H - 24, stroke: css("--rule")}, svg);
         el("text", {x: x(max * f), y: H - 8, "text-anchor": "middle"}, svg, FD(max * f)); }
       el("text", {x: L, y: 14}, svg, "missed the final reading by →");
-      ranked.forEach((e, i) => { const y = T + i * rh, medal = ["--gold", "--silver", "--bronze"][i], g = el("g", {"data-name": key(e.name)}, svg);
+      ranked.forEach((e, i) => { const y = T + i * rh, medal = ["--gold", "--silver", "--bronze"][place(e) - 1], g = el("g", {"data-name": key(e.name)}, svg);
         el("rect", {x: 0, y: y + 1, width: W, height: rh - 2, rx: 4, class: "hl"}, g);
-        el("text", {x: L - 10, y: y + 15, "text-anchor": "end", style: `fill:${css(medal ? "--fg" : "--muted")};font-weight:${medal ? 600 : 400}`}, g, `${i + 1}. ${e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name}`);
+        el("text", {x: L - 10, y: y + 15, "text-anchor": "end", style: `fill:${css(medal ? "--fg" : "--muted")};font-weight:${medal ? 600 : 400}`}, g, `${place(e)}. ${e.name.length > 22 ? e.name.slice(0, 21) + "…" : e.name}`);
         const bar = el("rect", {x: L, y: y + 4, width: Math.max(2, x(e.off_by) - L), height: rh - 8, rx: 3, fill: css(medal || (e.off_by < res.baseline_off_by ? "--good" : "--miss"))}, g);
         if (!calm) { bar.style.transformOrigin = `${L}px 0`; bar.style.animation = `grow .9s ${0.4 + i * 0.03}s both cubic-bezier(.2,.8,.2,1)`; }
         el("text", {x: x(e.off_by) + 6, y: y + 15, style: "font-family:" + css("--mono")}, g, FD(e.off_by)); });
