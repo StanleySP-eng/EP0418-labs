@@ -44,10 +44,13 @@ LABS = {
                       "Only Monday 16 to Thursday 19 November are counted, and the count is scaled to seven days: "
                       "dry days \u00d7 7 \u00f7 4. So 0 dry days counts as 0, 1 as 1.75, 2 as 3.5. Still give your "
                       "number for the whole week.")),
-    "5": dict(title="What will the busiest hour's taxi count be?", unit="taxis", data="taxi_hourly.csv", kind="week",
-              week=("2026-11-30", "2026-12-06"), cols=TAXI_COLS,
-              ask="The largest hourly taxi-availability count during the target week.",
-              baseline_says="the largest hourly count in the last seven days"),
+    "5": dict(title="Will Cat A COE break its record?", unit="S$", data="coe.csv", kind="coe",
+              close="2026-11-30", cols=COE_COLS,
+              ask="The Category A COE premium at the first bidding exercise after entries close. "
+                  "Its record is S$139,001, set on 4 November 2026.",
+              settle="LTA publishes the result at 4 pm on Wednesday 9 December 2026; the league scores it that night.",
+              opens="2026-11-26T16:11",    # changed from the taxi question on 26 Nov: earlier Lab 5 entries do not count
+              baseline_says="the Category A premium at the most recent exercise"),
     "6": dict(title="How many taxis at 6 pm on Friday?", unit="taxis", data="taxi_hourly.csv", kind="week",
               week=("2026-12-07", "2026-12-13"), cols=TAXI_COLS,
               ask="Taxis available in the 18 o'clock reading on the Friday of the target week.",
@@ -89,13 +92,11 @@ def predict(history):
     print("dry days in the last sixty:", int(dry.sum()))
     return float(round(dry.mean() * 7))
 ''',
-    "5": '''import pandas as pd
-
-def predict(history):
-    # the baseline: the busiest hour of the last seven days
-    last_week = history[history["timestamp"] > history["timestamp"].max() - pd.Timedelta(days=7)]
-    print("hours in the last week:", len(last_week))
-    return float(last_week["taxi_count"].max())
+    "5": '''def predict(history):
+    # the baseline: the Category A premium at the most recent exercise
+    cat_a = history[history["vehicle_class"] == "Category A"]
+    print("last three premiums:", cat_a["premium"].tail(3).tolist())
+    return float(cat_a["premium"].iloc[-1])
 ''',
     "6": '''def predict(history):
     # the baseline: the 18 o'clock reading on the last Friday
@@ -227,7 +228,7 @@ def _reading(df, day, hour):
 
 def answer(lab, df, target):
     """What really happened, or None if the data does not have it yet."""
-    if lab == "7":
+    if lab in ("5", "7"):
         a = df[df["vehicle_class"] == "Category A"]
         if target[0] == "after":
             hit = a[_key(a) > target[1]]
@@ -251,8 +252,6 @@ def answer(lab, df, target):
         return _reading(df, target, 8)
     if lab == "6":
         return _reading(df, pd.Timestamp(target) + pd.Timedelta(days=4), 18)
-    if lab == "5":
-        return float(w["taxi_count"].max()) if len(w) >= 150 else None
     if lab == "1":
         return float(w["psi_max"].max()) if len(w) >= 150 else None
 
@@ -268,12 +267,10 @@ def baseline(lab, hist):
         return float(hist[(ts.dt.weekday == 0) & (ts.dt.hour == 8)]["taxi_count"].mean())
     if lab == "4":
         return float(round((hist["rain_mm_mean"].tail(60) < 0.05).mean() * 7))
-    if lab == "5":
-        return float(hist[hist["timestamp"] > hist["timestamp"].max() - pd.Timedelta(days=7)]["taxi_count"].max())
     if lab == "6":
         ts = hist["timestamp"]
         return float(hist[(ts.dt.weekday == 4) & (ts.dt.hour == 18)]["taxi_count"].iloc[-1])
-    if lab == "7":
+    if lab in ("5", "7"):
         return float(hist[hist["vehicle_class"] == "Category A"]["premium"].iloc[-1])
     if lab == "8":
         d = hist.tail(63)

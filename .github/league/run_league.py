@@ -104,12 +104,16 @@ def freeze(entries_path):
         close = dt.datetime.fromisoformat(close_day).replace(tzinfo=SGT)
         if os.path.exists(out) or now_sgt() < close:
             continue
+        opens = q.get("opens")                  # entries made before the question was set (or changed) do not count
+        opens = dt.datetime.fromisoformat(opens).replace(tzinfo=SGT) if opens else None
         latest = {}
         for r in rows:
             name = " ".join(r.get("Name", "").split())
             if r.get("Lab", "").strip() != lab or not name or not r.get("Code", "").strip():
                 continue
             when = _when(r["Timestamp"])
+            if opens and when < opens:
+                continue
             if when < close and (name.lower() not in latest or when > latest[name.lower()][0]):
                 latest[name.lower()] = (when, name, r["Code"], r.get("Prediction", ""))
         df = Q.load(lab, os.path.join(DATA, q["data"]))
